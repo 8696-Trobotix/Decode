@@ -15,6 +15,12 @@ buildscript {
     }
 }
 
+plugins {
+    //noinspection JavaPluginLanguageLevel
+    id "java"
+    id "com.diffplug.spotless" version "7.2.1"
+}
+
 // This is now required because aapt2 has to be downloaded from the
 // google() repository beginning with version 3.2 of the Android Gradle Plugin
 allprojects {
@@ -26,4 +32,39 @@ allprojects {
 
 repositories {
     mavenCentral()
+}
+
+compileJava.dependsOn(spotlessApply)
+spotless {
+    java {
+        target fileTree(".") {
+            include "**/*.java"
+            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
+        }
+        removeUnusedImports()
+        importOrder()
+        cleanthat()
+        googleJavaFormat()
+        endWithNewline()
+        licenseHeader("// Copyright (c) 2024-2025 FTC 8696\n// All rights reserved.\n\n")
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format "misc", {
+        target fileTree(".") {
+            include "**/*.md", "**/.gitignore"
+            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
+        }
+        trimTrailingWhitespace()
+        indentWithSpaces(2)
+        endWithNewline()
+    }
 }
