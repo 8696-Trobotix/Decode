@@ -35,8 +35,15 @@ public class Encoder {
     lastPos = getPosition();
   }
 
+  private boolean inverted = false;
+
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
+  }
+
   public double getPosition() {
-    return internalMotor.getCurrentPosition() / countsPerRevolution;
+    return (inverted ? -internalMotor.getCurrentPosition() : internalMotor.getCurrentPosition())
+        / countsPerRevolution;
   }
 
   private double lastPos;

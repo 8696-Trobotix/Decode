@@ -38,6 +38,11 @@ public class ModeledMotor {
     motor.setVoltage(volts);
   }
 
+  public void setInverted(boolean inverted) {
+    motor.setInverted(inverted);
+    encoder.setInverted(inverted);
+  }
+
   private double getVoltageLimit(double velRadPerSec) {
     double statorLimit =
         Math.min(

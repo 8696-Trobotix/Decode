@@ -20,13 +20,19 @@ public class Motor {
         brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }
 
+  public boolean inverted = false;
+
+  public void setInverted(boolean inverted) {
+    this.inverted = inverted;
+  }
+
   private double lastDutyCycle = 0.0;
-  private double tolerance = .01;
+  private double tolerance = .005;
 
   public void set(double dutyCycle) {
     dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
-    if (!MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
-      internalMotor.setPower(dutyCycle);
+    if (dutyCycle == 0 || !MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
+      internalMotor.setPower(inverted ? -dutyCycle : dutyCycle);
       lastDutyCycle = dutyCycle;
     }
   }
