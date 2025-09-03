@@ -64,7 +64,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
         }
         trimTrailingWhitespace()
-        indentWithSpaces(2)
+        leadingTabsToSpaces(4)
         endWithNewline()
     }
 }
