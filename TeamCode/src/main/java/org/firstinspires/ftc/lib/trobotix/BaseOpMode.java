@@ -8,12 +8,13 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.wpilib.command.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
+import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
 import org.firstinspires.ftc.teamcode.Robot;
 
 @Photon
@@ -32,7 +33,7 @@ public abstract class BaseOpMode extends LinearOpMode {
     for (var module : lynxModules) {
       module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
     }
-    voltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
+    var voltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
 
@@ -42,18 +43,22 @@ public abstract class BaseOpMode extends LinearOpMode {
       initializedOpModes.add(activeOpMode);
     }
 
+    double dt = 1;
     while (!isStopRequested()) {
+      double startTime = Timer.getTimestamp();
       robotEnabled = opModeIsActive();
       for (var module : lynxModules) {
-        module.getBulkData();
+        module.clearBulkCache();
       }
+      Encoder.recalculateVelocity(dt);
+      busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
+      dt = Timer.getTimestamp() - startTime;
     }
     robotEnabled = false;
     CommandScheduler.getInstance().run();
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
-    voltageSensor = null;
   }
 
   protected abstract void initialize();
@@ -94,5 +99,5 @@ public abstract class BaseOpMode extends LinearOpMode {
 
   public static HardwareMap hardwareMap = null;
 
-  public static VoltageSensor voltageSensor = null;
+  public static double busVoltage = 12;
 }
