@@ -45,4 +45,30 @@ public class Encoder {
   public double getVelocity() {
     return cachedVelocity;
   }
+
+  public static final class CountsPerRevolution {
+    public static final double GOBILDA_6000RPM = 28;
+    public static final double GOBILDA_1620RPM = GOBILDA_6000RPM * (1 + (46.0 / 17.0));
+    public static final double GOBILDA_1159RPM = GOBILDA_6000RPM * (1 + (46.0 / 11.0));
+    public static final double GOBILDA_435RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 17.0)) * (1 + (46.0 / 17.0)));
+    public static final double GOBILDA_312RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 17.0)) * (1 + (46.0 / 11.0)));
+    public static final double GOBILDA_223RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 11.0)) * (1 + (46.0 / 11.0)));
+    public static final double GOBILDA_117RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 17.0)) * (1 + (46.0 / 17.0)) * (1 + (46.0 / 17.0)));
+    public static final double GOBILDA_84RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 17.0)) * (1 + (46.0 / 17.0)) * (1 + (46.0 / 11.0)));
+    public static final double GOBILDA_60RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 17.0)) * (1 + (46.0 / 11.0)) * (1 + (46.0 / 11.0)));
+    public static final double GOBILDA_43RPM =
+        GOBILDA_6000RPM * ((1 + (46.0 / 11.0)) * (1 + (46.0 / 11.0)) * (1 + (46.0 / 11.0)));
+    public static final double GOBILDA_30RPM =
+        GOBILDA_6000RPM
+            * ((1 + (46.0 / 17.0))
+                * (1 + (46.0 / 17.0))
+                * (1 + (46.0 / 17.0))
+                * (1 + (46.0 / 17.0)));
+  }
 }
