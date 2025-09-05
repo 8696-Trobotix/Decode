@@ -1,4 +1,4 @@
-// Copyright (c) 2024-2025 FTC 8696
+// Copyright (c) 2025-2026 FTC 8696
 // All rights reserved.
 
 package org.firstinspires.ftc.lib.wpilib.math.controller;

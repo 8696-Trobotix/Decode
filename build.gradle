@@ -46,7 +46,7 @@ spotless {
         cleanthat()
         googleJavaFormat()
         endWithNewline()
-        licenseHeader("// Copyright (c) 2024-2025 FTC 8696\n// All rights reserved.\n\n")
+        licenseHeader("// Copyright (c) 2025-2026 FTC 8696\n// All rights reserved.\n\n")
     }
     groovyGradle {
         target fileTree(".") {
