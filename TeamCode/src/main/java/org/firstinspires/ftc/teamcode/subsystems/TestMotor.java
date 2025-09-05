@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import java.util.function.DoubleSupplier;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
@@ -29,8 +30,7 @@ public class TestMotor extends SubsystemBase {
   @Override
   public void periodic() {
     var statorCurrent = motor.getInternalMotor().getCurrent(CurrentUnit.AMPS);
-    Telemetry.addData(
-        "TestMotor/Stator Current", statorCurrent);
+    Telemetry.addData("TestMotor/Stator Current", statorCurrent);
     Telemetry.addData("TestMotor/Supply Current", statorCurrent * Math.abs(motor.getDutyCycle()));
     Telemetry.addData("TestMotor/Position (Rotations)", motor.getEncoder().getPosition());
     Telemetry.addData("TestMotor/Velocity (RPM)", motor.getEncoder().getVelocity() * 60);
@@ -42,6 +42,8 @@ public class TestMotor extends SubsystemBase {
           var voltage = input.getAsDouble() * 12;
           Telemetry.addData("TestMotor/Commanded Voltage", voltage);
           motor.setVoltage(voltage);
+          Telemetry.addData(
+              "TestMotor/Actual Voltage", motor.getDutyCycle() * BaseOpMode.busVoltage);
         });
   }
 }

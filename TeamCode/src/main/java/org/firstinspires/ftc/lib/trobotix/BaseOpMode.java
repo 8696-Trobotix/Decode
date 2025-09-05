@@ -8,8 +8,6 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;

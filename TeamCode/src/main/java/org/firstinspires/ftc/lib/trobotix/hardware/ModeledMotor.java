@@ -5,7 +5,6 @@ package org.firstinspires.ftc.lib.trobotix.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
@@ -36,7 +35,6 @@ public class ModeledMotor {
     } else {
       volts = Math.max(volts, -getVoltageLimit(-velRadPerSec));
     }
-    Telemetry.addData("TestMotor/Actual Voltage", volts);
 
     motor.setVoltage(volts);
   }
@@ -46,20 +44,17 @@ public class ModeledMotor {
         Math.min(
             statorCurrentLimitAmps,
             (-(motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                * (velRadPerSec / motorModel.freeSpeedRadPerSec)
-                + Math.sqrt(
-                Math.pow(
-                    (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                        * (velRadPerSec / motorModel.freeSpeedRadPerSec),
-                    2)
-                    + 4
-                    * (BaseOpMode.busVoltage / 12)
-                    * motorModel.stallCurrentAmps
-                    * supplyCurrentLimitAmps))
+                        * (velRadPerSec / motorModel.freeSpeedRadPerSec)
+                    + Math.sqrt(
+                        Math.pow(
+                                (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
+                                    * (velRadPerSec / motorModel.freeSpeedRadPerSec),
+                                2)
+                            + 4
+                                * (BaseOpMode.busVoltage / 12)
+                                * motorModel.stallCurrentAmps
+                                * supplyCurrentLimitAmps))
                 / 2);
-    Telemetry.addData(
-        "TestMotor/Math vel (RPM)", Units.radiansPerSecondToRotationsPerMinute(velRadPerSec));
-    Telemetry.addData("TestMotor/Stator Limit", statorLimit);
     return motorModel.getVoltage(motorModel.getTorque(statorLimit), velRadPerSec);
   }
 
