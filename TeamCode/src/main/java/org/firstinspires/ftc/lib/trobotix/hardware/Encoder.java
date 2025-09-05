@@ -20,16 +20,18 @@ public class Encoder {
     }
   }
 
+  private double velTMinus1 = 0;
+  private double velTMinus2 = 0;
+
   public Encoder(String name, double encoderGearReduction) {
     internalMotor = (DcMotorEx) BaseOpMode.hardwareMap.dcMotor.get(name);
     this.countsPerRevolution = encoderGearReduction;
     velocityCacheResets.add(
         (dt) -> {
-          if (dt < .1) {
-            cachedVelocity = (getPosition() - lastPos) / dt;
-          } else {
-            cachedVelocity = internalMotor.getVelocity() / countsPerRevolution;
-          }
+          var currentVel = (getPosition() - lastPos) / dt;
+          cachedVelocity = (currentVel + velTMinus1 + velTMinus2) / 3;
+          velTMinus2 = velTMinus1;
+          velTMinus1 = currentVel;
           lastPos = getPosition();
         });
     lastPos = getPosition();

@@ -44,4 +44,12 @@ public class Motor {
   public void setTolerance(double tolerance) {
     this.tolerance = tolerance;
   }
+
+  public DcMotorEx getInternalMotor() {
+    return internalMotor;
+  }
+
+  public double getDutyCycle() {
+    return lastDutyCycle;
+  }
 }

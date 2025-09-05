@@ -8,6 +8,8 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
@@ -29,13 +31,14 @@ public abstract class BaseOpMode extends LinearOpMode {
   @Override
   public final void runOpMode() {
     // Pre-user code initialization
-    final var lynxModules = hardwareMap.getAll(LynxModule.class);
+    final var lynxModules = super.hardwareMap.getAll(LynxModule.class);
     for (var module : lynxModules) {
       module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
     }
-    var voltageSensor = hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
+    var voltageSensor = super.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
+    Telemetry.setTelemetry(telemetry);
 
     Robot.init();
     if (!initializedOpModes.contains(activeOpMode)) {
@@ -45,6 +48,8 @@ public abstract class BaseOpMode extends LinearOpMode {
 
     double dt = 1;
     while (!isStopRequested()) {
+      telemetry.addData("Active Op Mode", name);
+      telemetry.addData("Current time", Timer.getTimestamp());
       double startTime = Timer.getTimestamp();
       robotEnabled = opModeIsActive();
       for (var module : lynxModules) {
@@ -54,11 +59,14 @@ public abstract class BaseOpMode extends LinearOpMode {
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
       dt = Timer.getTimestamp() - startTime;
+      telemetry.addData("Main loop time", dt);
+      telemetry.update();
     }
     robotEnabled = false;
     CommandScheduler.getInstance().run();
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
+    Telemetry.setTelemetry(null);
   }
 
   protected abstract void initialize();

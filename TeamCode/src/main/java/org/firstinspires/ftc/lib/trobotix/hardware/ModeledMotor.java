@@ -3,7 +3,9 @@
 
 package org.firstinspires.ftc.lib.trobotix.hardware;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
@@ -34,6 +36,7 @@ public class ModeledMotor {
     } else {
       volts = Math.max(volts, -getVoltageLimit(-velRadPerSec));
     }
+    Telemetry.addData("TestMotor/Actual Voltage", volts);
 
     motor.setVoltage(volts);
   }
@@ -41,6 +44,10 @@ public class ModeledMotor {
   public void setInverted(boolean inverted) {
     motor.setInverted(inverted);
     encoder.setInverted(inverted);
+  }
+
+  public void setBrake(boolean brake) {
+    motor.setInverted(brake);
   }
 
   private double getVoltageLimit(double velRadPerSec) {
@@ -59,6 +66,21 @@ public class ModeledMotor {
                                 * motorModel.stallCurrentAmps
                                 * supplyCurrentLimitAmps))
                 / 2);
-    return velRadPerSec / motorModel.KvRadPerSecPerVolt + motorModel.rOhms * statorLimit;
+    Telemetry.addData(
+        "TestMotor/Math vel (RPM)", Units.radiansPerSecondToRotationsPerMinute(velRadPerSec));
+    Telemetry.addData("TestMotor/Stator Limit", statorLimit);
+    return motorModel.getVoltage(motorModel.getTorque(statorLimit), velRadPerSec);
+  }
+
+  public DcMotorEx getInternalMotor() {
+    return motor.getInternalMotor();
+  }
+
+  public double getDutyCycle() {
+    return motor.getDutyCycle();
+  }
+
+  public Encoder getEncoder() {
+    return encoder;
   }
 }

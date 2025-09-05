@@ -18,7 +18,7 @@ public class Timer {
    * @return Robot running time in seconds.
    */
   public static double getTimestamp() {
-    return System.nanoTime() / 100000000.0;
+    return System.nanoTime() / 1000000000.0;
   }
 
   /**
