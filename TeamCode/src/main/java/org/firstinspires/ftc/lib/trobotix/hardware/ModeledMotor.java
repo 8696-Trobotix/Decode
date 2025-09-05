@@ -41,6 +41,28 @@ public class ModeledMotor {
     motor.setVoltage(volts);
   }
 
+  private double getVoltageLimit(double velRadPerSec) {
+    double statorLimit =
+        Math.min(
+            statorCurrentLimitAmps,
+            (-(motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
+                * (velRadPerSec / motorModel.freeSpeedRadPerSec)
+                + Math.sqrt(
+                Math.pow(
+                    (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
+                        * (velRadPerSec / motorModel.freeSpeedRadPerSec),
+                    2)
+                    + 4
+                    * (BaseOpMode.busVoltage / 12)
+                    * motorModel.stallCurrentAmps
+                    * supplyCurrentLimitAmps))
+                / 2);
+    Telemetry.addData(
+        "TestMotor/Math vel (RPM)", Units.radiansPerSecondToRotationsPerMinute(velRadPerSec));
+    Telemetry.addData("TestMotor/Stator Limit", statorLimit);
+    return motorModel.getVoltage(motorModel.getTorque(statorLimit), velRadPerSec);
+  }
+
   public void setInverted(boolean inverted) {
     motor.setInverted(inverted);
     encoder.setInverted(inverted);
@@ -48,28 +70,6 @@ public class ModeledMotor {
 
   public void setBrake(boolean brake) {
     motor.setInverted(brake);
-  }
-
-  private double getVoltageLimit(double velRadPerSec) {
-    double statorLimit =
-        Math.min(
-            statorCurrentLimitAmps,
-            (-(motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                        * (velRadPerSec / motorModel.freeSpeedRadPerSec)
-                    + Math.sqrt(
-                        Math.pow(
-                                (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                                    * (velRadPerSec / motorModel.freeSpeedRadPerSec),
-                                2)
-                            + 4
-                                * (BaseOpMode.busVoltage / 12)
-                                * motorModel.stallCurrentAmps
-                                * supplyCurrentLimitAmps))
-                / 2);
-    Telemetry.addData(
-        "TestMotor/Math vel (RPM)", Units.radiansPerSecondToRotationsPerMinute(velRadPerSec));
-    Telemetry.addData("TestMotor/Stator Limit", statorLimit);
-    return motorModel.getVoltage(motorModel.getTorque(statorLimit), velRadPerSec);
   }
 
   public DcMotorEx getInternalMotor() {
