@@ -25,18 +25,27 @@ public class TwoPodDeadwheelKinematics
 
   @Override
   public ChassisSpeeds toChassisSpeeds(TwoPodDeadwheelSpeeds wheelSpeeds) {
-    return new ChassisSpeeds(0, 0, wheelSpeeds.omegaRadPerSec);
+    return new ChassisSpeeds(
+        wheelSpeeds.xVelMetersPerSec + xWheelYPos * wheelSpeeds.omegaRadPerSec,
+        wheelSpeeds.yVelMetersPerSec - yWheelXPos * wheelSpeeds.omegaRadPerSec,
+        wheelSpeeds.omegaRadPerSec);
   }
 
   @Override
   public TwoPodDeadwheelSpeeds toWheelSpeeds(ChassisSpeeds chassisSpeeds) {
-    return new TwoPodDeadwheelSpeeds(0, 0, chassisSpeeds.omegaRadiansPerSecond);
+    return new TwoPodDeadwheelSpeeds(
+        chassisSpeeds.vxMetersPerSecond - xWheelYPos * chassisSpeeds.omegaRadiansPerSecond,
+        chassisSpeeds.vyMetersPerSecond + yWheelXPos * chassisSpeeds.omegaRadiansPerSecond,
+        chassisSpeeds.omegaRadiansPerSecond);
   }
 
   @Override
   public Twist2d toTwist2d(TwoPodDeadwheelPositions start, TwoPodDeadwheelPositions end) {
     var headingDeltaRad = end.yawPos.minus(start.yawPos).getRadians();
-    return new Twist2d(0, 0, headingDeltaRad);
+    return new Twist2d(
+        (end.xPosMeters - start.xPosMeters) + xWheelYPos * headingDeltaRad,
+        (end.yPosMeters - start.yPosMeters) - yWheelXPos * headingDeltaRad,
+        headingDeltaRad);
   }
 
   @Override

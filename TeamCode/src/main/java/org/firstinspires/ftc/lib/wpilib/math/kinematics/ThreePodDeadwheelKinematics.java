@@ -29,17 +29,34 @@ public class ThreePodDeadwheelKinematics
 
   @Override
   public ChassisSpeeds toChassisSpeeds(ThreePodDeadwheelSpeeds wheelSpeeds) {
-    return new ChassisSpeeds(0, 0, 0);
+    return new ChassisSpeeds(
+        (wheelSpeeds.x0VelMetersPerSec * x1WheelYPos - wheelSpeeds.x1VelMetersPerSec * x0WheelYPos)
+            / (x1WheelYPos - x0WheelYPos),
+        wheelSpeeds.yVelMetersPerSec
+            - yWheelXPos
+                * (wheelSpeeds.x0VelMetersPerSec - wheelSpeeds.x1VelMetersPerSec)
+                / (x1WheelYPos - x0WheelYPos),
+        (wheelSpeeds.x0VelMetersPerSec - wheelSpeeds.x1VelMetersPerSec)
+            / (x1WheelYPos - x0WheelYPos));
   }
 
   @Override
   public ThreePodDeadwheelSpeeds toWheelSpeeds(ChassisSpeeds chassisSpeeds) {
-    return new ThreePodDeadwheelSpeeds(0, 0, 0);
+    return new ThreePodDeadwheelSpeeds(
+        chassisSpeeds.vxMetersPerSecond - x0WheelYPos * chassisSpeeds.omegaRadiansPerSecond,
+        chassisSpeeds.vxMetersPerSecond - x1WheelYPos * chassisSpeeds.omegaRadiansPerSecond,
+        chassisSpeeds.vyMetersPerSecond + yWheelXPos * chassisSpeeds.omegaRadiansPerSecond);
   }
 
   @Override
   public Twist2d toTwist2d(ThreePodDeadwheelPositions start, ThreePodDeadwheelPositions end) {
-    return new Twist2d(0, 0, 0);
+    var deltaX0 = end.x0PosMeters - start.x0PosMeters;
+    var deltaX1 = end.x1PosMeters - start.x1PosMeters;
+    var deltaY = end.yPosMeters - start.yPosMeters;
+    return new Twist2d(
+        (deltaX0 * x1WheelYPos - deltaX1 * x0WheelYPos) / (x1WheelYPos - x0WheelYPos),
+        deltaY - yWheelXPos * (deltaX0 - deltaX1) / (x1WheelYPos - x0WheelYPos),
+        (deltaX0 - deltaX1) / (x1WheelYPos - x0WheelYPos));
   }
 
   @Override
