@@ -26,6 +26,11 @@ public class Motor {
     this.inverted = inverted;
   }
 
+  public Motor withInvert(boolean inverted) {
+    setInverted(inverted);
+    return this;
+  }
+
   private double lastDutyCycle = 0.0;
   private double tolerance = .005;
 

@@ -43,6 +43,11 @@ public class Encoder {
     this.inverted = inverted;
   }
 
+  public Encoder withInvert(boolean inverted) {
+    setInverted(inverted);
+    return this;
+  }
+
   public double getPosition() {
     return (inverted ? -internalMotor.getCurrentPosition() : internalMotor.getCurrentPosition())
         / countsPerRevolution;
