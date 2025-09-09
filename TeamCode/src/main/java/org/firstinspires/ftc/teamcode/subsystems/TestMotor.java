@@ -30,19 +30,20 @@ public class TestMotor extends SubsystemBase {
   @Override
   public void periodic() {
     var statorCurrent = motor.getInternalMotor().getCurrent(CurrentUnit.AMPS);
-    Telemetry.addData("TestMotor/Stator Current", statorCurrent);
-    Telemetry.addData("TestMotor/Supply Current", statorCurrent * Math.abs(motor.getDutyCycle()));
-    Telemetry.addData("TestMotor/Position (Rotations)", motor.getEncoder().getPosition());
-    Telemetry.addData("TestMotor/Velocity (RPM)", motor.getEncoder().getVelocity() * 60);
+    Telemetry.addDashboardData("TestMotor/Stator Current", statorCurrent);
+    Telemetry.addDashboardData(
+        "TestMotor/Supply Current", statorCurrent * Math.abs(motor.getDutyCycle()));
+    Telemetry.addDashboardData("TestMotor/Position (Rotations)", motor.getEncoder().getPosition());
+    Telemetry.addDashboardData("TestMotor/Velocity (RPM)", motor.getEncoder().getVelocity() * 60);
   }
 
   public Command move(DoubleSupplier input) {
     return run(
         () -> {
           var voltage = input.getAsDouble() * 12;
-          Telemetry.addData("TestMotor/Commanded Voltage", voltage);
+          Telemetry.addDashboardData("TestMotor/Commanded Voltage", voltage);
           motor.setVoltage(voltage);
-          Telemetry.addData(
+          Telemetry.addDashboardData(
               "TestMotor/Actual Voltage", motor.getDutyCycle() * BaseOpMode.busVoltage);
         });
   }
