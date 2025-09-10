@@ -53,6 +53,8 @@ public abstract class BaseOpMode extends LinearOpMode {
       for (var module : lynxModules) {
         module.clearBulkCache();
       }
+      //noinspection ConstantValue
+      telemetry.addData("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
       Encoder.recalculateVelocity(dt);
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();

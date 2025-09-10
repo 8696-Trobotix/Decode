@@ -18,7 +18,6 @@ buildscript {
 plugins {
     //noinspection JavaPluginLanguageLevel
     id "java"
-    id "com.diffplug.spotless" version "7.2.1"
 }
 
 // This is now required because aapt2 has to be downloaded from the
@@ -32,39 +31,4 @@ allprojects {
 
 repositories {
     mavenCentral()
-}
-
-compileJava.dependsOn(spotlessApply)
-spotless {
-    java {
-        target fileTree(".") {
-            include "**/*.java"
-            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
-        }
-        removeUnusedImports()
-        importOrder()
-        cleanthat()
-        googleJavaFormat()
-        endWithNewline()
-        licenseHeader("// Copyright (c) 2025-2026 FTC 8696\n// All rights reserved.\n\n")
-    }
-    groovyGradle {
-        target fileTree(".") {
-            include "**/*.gradle"
-            exclude "**/build/**", "**/build-*/**"
-        }
-        greclipse()
-        leadingTabsToSpaces(4)
-        trimTrailingWhitespace()
-        endWithNewline()
-    }
-    format "misc", {
-        target fileTree(".") {
-            include "**/*.md", "**/.gitignore"
-            exclude "**/build/**", "**/build-*/**", "FtcRobotController/**"
-        }
-        trimTrailingWhitespace()
-        leadingTabsToSpaces(4)
-        endWithNewline()
-    }
 }
