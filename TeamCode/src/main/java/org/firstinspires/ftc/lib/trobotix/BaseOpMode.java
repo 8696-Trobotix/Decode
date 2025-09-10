@@ -40,6 +40,7 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
     Logger.addDataReceiver(new RLOGServer());
+    //    Logger.setReplaySource(new RLOGReplay(""));
     Logger.addDataReceiver(new RLOGWriter());
     Logger.recordMetadata("Active Op Mode", activeOpMode);
     Logger.recordMetadata("Build Date", BuildConstants.BUILD_DATE);
