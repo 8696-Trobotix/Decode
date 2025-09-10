@@ -50,12 +50,19 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     //noinspection ConstantValue
     Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
     Logger.start();
-    Logger.periodicAfterUser(0, 0);
 
-    Robot.init();
-    if (!initializedOpModes.contains(activeOpMode)) {
-      initialize();
-      initializedOpModes.add(activeOpMode);
+    {
+      double initTime = Logger.getTimestamp();
+      Logger.periodicBeforeUser();
+      double periodicBeforeUserTime = Logger.getTimestamp();
+      processHardwareInputs();
+      Robot.init();
+      if (!initializedOpModes.contains(activeOpMode)) {
+        initialize();
+        initializedOpModes.add(activeOpMode);
+      }
+      Logger.periodicAfterUser(
+          Logger.getTimestamp() - periodicBeforeUserTime, periodicBeforeUserTime - initTime);
     }
 
     double dt = 1;
