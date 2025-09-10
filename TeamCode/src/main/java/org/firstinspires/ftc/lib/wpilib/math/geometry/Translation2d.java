@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Translation2dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolatable;
 
 /**
@@ -25,6 +26,9 @@ public class Translation2d implements Interpolatable<Translation2d> {
    * <p>This exists to avoid allocations for common translations.
    */
   public static final Translation2d kZero = new Translation2d();
+
+  /** Translation2d struct for serialization. */
+  public static final Translation2dStruct struct = new Translation2dStruct();
 
   private final double m_x;
   private final double m_y;

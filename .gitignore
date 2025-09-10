@@ -79,3 +79,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+# AdvantageKit git metadata file
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/BuildConstants.java

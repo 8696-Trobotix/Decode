@@ -6,7 +6,6 @@ package org.firstinspires.ftc.lib.trobotix;
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,11 +13,15 @@ import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.wpilib.command.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
-import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
+import org.firstinspires.ftc.teamcode.BuildConstants;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.psilynx.psikit.core.Logger;
+import org.psilynx.psikit.core.rlog.RLOGServer;
+import org.psilynx.psikit.core.rlog.RLOGWriter;
+import org.psilynx.psikit.ftc.PsiKitOpMode;
 
 @Photon
-public abstract class BaseOpMode extends LinearOpMode {
+public abstract class BaseOpMode extends PsiKitOpMode {
   private final String name;
 
   protected BaseOpMode() {
@@ -36,7 +39,17 @@ public abstract class BaseOpMode extends LinearOpMode {
     var voltageSensor = super.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
-    Telemetry.setTelemetry(telemetry);
+    Logger.addDataReceiver(new RLOGServer());
+    Logger.addDataReceiver(new RLOGWriter());
+    Logger.recordMetadata("Active Op Mode", activeOpMode);
+    Logger.recordMetadata("Build Date", BuildConstants.BUILD_DATE);
+    Logger.recordMetadata("Git Commit Hash", BuildConstants.GIT_SHA);
+    Logger.recordMetadata("Git Commit Date", BuildConstants.GIT_DATE);
+    Logger.recordMetadata("Git Branch", BuildConstants.GIT_BRANCH);
+    //noinspection ConstantValue
+    Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
+    Logger.start();
+    Logger.periodicAfterUser(0, 0);
 
     Robot.init();
     if (!initializedOpModes.contains(activeOpMode)) {
@@ -45,29 +58,28 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
 
     double dt = 1;
-    while (!isStopRequested()) {
+    while (!getPsiKitIsStopRequested()) {
+      double startTime = Logger.getTimestamp();
+      Logger.periodicBeforeUser();
+      double periodicBeforeUserTime = Logger.getTimestamp();
       telemetry.addData("Active Op Mode", name);
-      telemetry.addData("Current time", Timer.getTimestamp());
-      double startTime = Timer.getTimestamp();
-      robotEnabled = opModeIsActive();
-      for (var module : lynxModules) {
-        module.clearBulkCache();
-      }
+      telemetry.addData("Current time", startTime);
       //noinspection ConstantValue
       telemetry.addData("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
+      robotEnabled = getPsiKitIsStarted();
+      processHardwareInputs();
       Encoder.recalculateVelocity(dt);
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
-      dt = Timer.getTimestamp() - startTime;
-      Telemetry.addDSData("Main loop time", dt);
+      dt = Logger.getTimestamp() - startTime;
       telemetry.update();
-      Telemetry.sendDashboardTelemetry();
+      Logger.periodicAfterUser(dt - periodicBeforeUserTime, periodicBeforeUserTime);
     }
     robotEnabled = false;
     CommandScheduler.getInstance().run();
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
-    Telemetry.setTelemetry(null);
+    Logger.end();
   }
 
   protected abstract void initialize();
@@ -81,8 +93,6 @@ public abstract class BaseOpMode extends LinearOpMode {
         name, (name) -> new Trigger(() -> robotEnabled, name));
   }
 
-  // TODO: See if we get a NPE when initializing, since gamepad1 & gamepad2 don't get set to a
-  //  non-null value for a *while*
   /**
    * A {@link CommandXboxController} that wraps gamepad1 to use the Commands framework.
    *

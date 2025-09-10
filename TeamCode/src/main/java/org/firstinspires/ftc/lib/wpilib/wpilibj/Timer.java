@@ -3,6 +3,8 @@
 
 package org.firstinspires.ftc.lib.wpilib.wpilibj;
 
+import org.psilynx.psikit.core.Logger;
+
 /**
  * A timer class.
  *
@@ -10,17 +12,6 @@ package org.firstinspires.ftc.lib.wpilib.wpilibj;
  * get() won't return a negative duration.
  */
 public class Timer {
-  /**
-   * Return the clock time in seconds. By default, the time is based on the FPGA hardware clock in
-   * seconds since the FPGA started. However, the return value of this method may be modified to use
-   * any time base, including non-monotonic time bases.
-   *
-   * @return Robot running time in seconds.
-   */
-  public static double getTimestamp() {
-    return System.nanoTime() / 1000000000.0;
-  }
-
   /**
    * Pause the thread for a specified time. Pause the execution of the thread for a specified period
    * of time given in seconds. Motors will continue to run at their last assigned values, and
@@ -47,7 +38,7 @@ public class Timer {
   }
 
   private double getMsClock() {
-    return getTimestamp() / 1000.0;
+    return Logger.getTimestamp() * 1000;
   }
 
   /**
