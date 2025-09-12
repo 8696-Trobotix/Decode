@@ -36,7 +36,8 @@ public class Motor {
 
   public void set(double dutyCycle) {
     dutyCycle = MathUtil.clamp(dutyCycle, -1, 1);
-    if (dutyCycle == 0 || !MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
+    if ((dutyCycle == 0 && lastDutyCycle != 0)
+        || !MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
       internalMotor.setPower(inverted ? -dutyCycle : dutyCycle);
       lastDutyCycle = dutyCycle;
     }
