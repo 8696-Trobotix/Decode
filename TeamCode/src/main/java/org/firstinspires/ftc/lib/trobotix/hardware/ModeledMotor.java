@@ -64,7 +64,7 @@ public class ModeledMotor {
   }
 
   public void setBrake(boolean brake) {
-    motor.setInverted(brake);
+    motor.setBrake(brake);
   }
 
   public DcMotorEx getInternalMotor() {
