@@ -3,7 +3,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.subsystems.TestMotor;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 public class Robot {
   private static Robot instance = null;
@@ -19,11 +19,9 @@ public class Robot {
     return instance;
   }
 
-  //  public final Drivetrain drivetrain;
-  public final TestMotor testMotor;
+  public final Drivetrain drivetrain;
 
   private Robot() {
-    //    drivetrain = new Drivetrain();
-    testMotor = new TestMotor();
+    drivetrain = new Drivetrain();
   }
 }

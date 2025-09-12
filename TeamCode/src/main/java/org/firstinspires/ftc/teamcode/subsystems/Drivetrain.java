@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import java.util.function.Supplier;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
@@ -64,10 +65,10 @@ public class Drivetrain extends SubsystemBase {
       DCMotor.GOBILDA_5203_435RPM(1).freeSpeedRadPerSec * (52.0 / 1000);
   private final double kV_voltsPerMetersPerSec = 12 / maxSpeedMetersPerSec;
 
-  public Command drive(ChassisSpeeds speeds) {
+  public Command drive(Supplier<ChassisSpeeds> speeds) {
     return run(
         () -> {
-          var wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+          var wheelSpeeds = kinematics.toWheelSpeeds(speeds.get());
           wheelSpeeds.desaturate(maxSpeedMetersPerSec);
 
           frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);

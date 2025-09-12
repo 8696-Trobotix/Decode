@@ -51,6 +51,8 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
     Logger.start();
 
+    psiKitSetup();
+
     {
       double initTime = Logger.getTimestamp();
       Logger.periodicBeforeUser();
