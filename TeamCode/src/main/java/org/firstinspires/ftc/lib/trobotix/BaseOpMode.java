@@ -50,6 +50,7 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     //noinspection ConstantValue
     Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
     Logger.start();
+    timeOffset = System.nanoTime() / 1E9 - Logger.getTimestamp();
 
     psiKitSetup();
 
@@ -65,6 +66,10 @@ public abstract class BaseOpMode extends PsiKitOpMode {
       }
       Logger.periodicAfterUser(
           Logger.getTimestamp() - periodicBeforeUserTime, periodicBeforeUserTime - initTime);
+    }
+
+    for (var hook : resetHooks) {
+      hook.run();
     }
 
     double dt = 1;
@@ -103,6 +108,12 @@ public abstract class BaseOpMode extends PsiKitOpMode {
         name, (name) -> new Trigger(() -> robotEnabled, name));
   }
 
+  private static final ArrayList<Runnable> resetHooks = new ArrayList<>();
+
+  public static void addResetHook(Runnable hook) {
+    resetHooks.add(hook);
+  }
+
   /**
    * A {@link CommandXboxController} that wraps gamepad1 to use the Commands framework.
    *
@@ -127,6 +138,8 @@ public abstract class BaseOpMode extends PsiKitOpMode {
   public static String activeOpMode = null;
 
   public static HardwareMap hardwareMap = null;
+
+  public static double timeOffset = 0;
 
   public static double busVoltage = 12;
 }

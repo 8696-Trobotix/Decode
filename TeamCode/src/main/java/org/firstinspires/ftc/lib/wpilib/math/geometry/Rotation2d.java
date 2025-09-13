@@ -68,9 +68,6 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
    */
   public static final Rotation2d k180deg = kPi;
 
-  /** Rotation2d struct for serialization. */
-  public static final Rotation2dStruct struct = new Rotation2dStruct();
-
   private final double m_value;
   private final double m_cos;
   private final double m_sin;
@@ -300,4 +297,7 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
   public Rotation2d interpolate(Rotation2d endValue, double t) {
     return plus(endValue.minus(this).times(MathUtil.clamp(t, 0, 1)));
   }
+
+  /** Rotation2d struct for serialization. */
+  public static final Rotation2dStruct struct = new Rotation2dStruct();
 }

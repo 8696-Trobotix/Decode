@@ -27,9 +27,6 @@ public class Translation2d implements Interpolatable<Translation2d> {
    */
   public static final Translation2d kZero = new Translation2d();
 
-  /** Translation2d struct for serialization. */
-  public static final Translation2dStruct struct = new Translation2dStruct();
-
   private final double m_x;
   private final double m_y;
 
@@ -248,4 +245,7 @@ public class Translation2d implements Interpolatable<Translation2d> {
         MathUtil.interpolate(this.getX(), endValue.getX(), t),
         MathUtil.interpolate(this.getY(), endValue.getY(), t));
   }
+
+  /** Translation2d struct for serialization. */
+  public static final Translation2dStruct struct = new Translation2dStruct();
 }
