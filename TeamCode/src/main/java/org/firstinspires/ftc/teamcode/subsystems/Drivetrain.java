@@ -19,6 +19,7 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
+import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 import org.psilynx.psikit.core.Logger;
@@ -116,7 +117,7 @@ public class Drivetrain extends SubsystemBase {
 
   private static final double wheelbaseLengthMeters = Units.inchesToMeters(10);
   private static final double wheelbaseWidthMeters = Units.inchesToMeters(10);
-  private final MecanumDriveKinematics kinematics =
+  private static final MecanumDriveKinematics kinematics =
       new MecanumDriveKinematics(
           new Translation2d(wheelbaseLengthMeters / 2, wheelbaseWidthMeters / 2),
           new Translation2d(wheelbaseLengthMeters / 2, -wheelbaseWidthMeters / 2),
@@ -126,7 +127,13 @@ public class Drivetrain extends SubsystemBase {
   public static final double maxSpeedMetersPerSec =
       DCMotor.GOBILDA_5203_435RPM(1).freeSpeedRadPerSec * (52.0 / 1000);
   public static final double maxAngularSpeedRadPerSec =
-      maxSpeedMetersPerSec / Math.hypot(wheelbaseLengthMeters / 2, wheelbaseWidthMeters / 2);
+      kinematics.toChassisSpeeds(
+              new MecanumDriveWheelSpeeds(
+                  -maxSpeedMetersPerSec,
+                  maxSpeedMetersPerSec,
+                  -maxSpeedMetersPerSec,
+                  maxSpeedMetersPerSec))
+          .omegaRadiansPerSecond;
   private final double kV_voltsPerMetersPerSec = 12 / maxSpeedMetersPerSec;
 
   public Command drive(Supplier<ChassisSpeeds> speeds) {
