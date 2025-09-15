@@ -12,6 +12,8 @@
 // Custom definitions may go here
 
 // Include common definitions from above.
+import com.diffplug.spotless.LineEnding
+
 buildscript {
     repositories {
         mavenCentral()
@@ -69,6 +71,7 @@ gversion {
 }
 
 spotless {
+    lineEndings(LineEnding.UNIX)
     java {
         target fileTree(".") {
             include "**/*.java"
