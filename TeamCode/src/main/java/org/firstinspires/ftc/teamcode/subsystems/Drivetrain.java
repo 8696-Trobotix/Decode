@@ -5,30 +5,24 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import java.util.function.Supplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.lib.trobotix.estimator.PinpointPoseEstimator;
 import org.firstinspires.ftc.lib.trobotix.hardware.AprilTagDetectorIO;
-import org.firstinspires.ftc.lib.trobotix.hardware.AprilTagDetectorImpl;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
-import org.firstinspires.ftc.lib.trobotix.hardware.Pinpoint;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
-import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
-import org.psilynx.psikit.core.Logger;
 
 public class Drivetrain extends SubsystemBase {
   private final ModeledMotor frontLeft, frontRight, backLeft, backRight;
 
-  private final PinpointPoseEstimator poseEstimator;
-  private final AprilTagDetectorIO detectorIO;
+  //  private final PinpointPoseEstimator poseEstimator;
+  //  private final AprilTagDetectorIO detectorIO;
 
   public Drivetrain() {
     frontLeft =
@@ -67,22 +61,22 @@ public class Drivetrain extends SubsystemBase {
     backLeft.setBrake(true);
     backRight.setBrake(true);
 
-    poseEstimator =
-        new PinpointPoseEstimator(
-            new Pinpoint("Pinpoint", 0, 0, false, false),
-            VecBuilder.fill(.1, .1, .1),
-            VecBuilder.fill(.9, .9, .9));
-    if (!Logger.isReplay()) {
-      detectorIO =
-          new AprilTagDetectorImpl(
-              new Transform3d(),
-              900, // TODO: Actually obtain an Arducam OV9281 and calibrate it
-              639.5,
-              900,
-              399.5);
-    } else {
-      detectorIO = new AprilTagDetectorIO() {};
-    }
+    //    poseEstimator =
+    //        new PinpointPoseEstimator(
+    //            new Pinpoint("Pinpoint", 0, 0, false, false),
+    //            VecBuilder.fill(.1, .1, .1),
+    //            VecBuilder.fill(.9, .9, .9));
+    //    if (!Logger.isReplay()) {
+    //      detectorIO =
+    //          new AprilTagDetectorImpl(
+    //              new Transform3d(),
+    //              900, // TODO: Actually obtain an Arducam OV9281 and calibrate it
+    //              639.5,
+    //              900,
+    //              399.5);
+    //    } else {
+    //      detectorIO = new AprilTagDetectorIO() {};
+    //    }
 
     BaseOpMode.addResetHook(() -> {});
   }
@@ -100,19 +94,20 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    poseEstimator.update();
-    detectorIO.updateInputs(inputs);
-    Logger.processInputs("AprilTags", inputs);
-    for (int i = 0; i < inputs.tagIDs.length; i++) {
-      switch (inputs.tagIDs[i]) {
-        case 21 -> motif = Motif.GPP;
-        case 22 -> motif = Motif.PGP;
-        case 23 -> motif = Motif.PPG;
-        default ->
-            poseEstimator.addVisionMeasurement(inputs.poses[i].toPose2d(), inputs.timestamps[i]);
-      }
-    }
-    Logger.recordOutput("Drive/Estimated Pose", poseEstimator.getEstimatedPosition());
+    //    poseEstimator.update();
+    //    detectorIO.updateInputs(inputs);
+    //    Logger.processInputs("AprilTags", inputs);
+    //    for (int i = 0; i < inputs.tagIDs.length; i++) {
+    //      switch (inputs.tagIDs[i]) {
+    //        case 21 -> motif = Motif.GPP;
+    //        case 22 -> motif = Motif.PGP;
+    //        case 23 -> motif = Motif.PPG;
+    //        default ->
+    //            poseEstimator.addVisionMeasurement(inputs.poses[i].toPose2d(),
+    // inputs.timestamps[i]);
+    //      }
+    //    }
+    //    Logger.recordOutput("Drive/Estimated Pose", poseEstimator.getEstimatedPosition());
   }
 
   private static final double wheelbaseLengthMeters = Units.inchesToMeters(10);
