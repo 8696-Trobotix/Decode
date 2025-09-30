@@ -39,6 +39,7 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     var voltageSensor = super.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
+    psiKitSetup();
     Logger.addDataReceiver(new RLOGServer());
     //    Logger.setReplaySource(new RLOGReplay(""));
     Logger.addDataReceiver(new RLOGWriter());
@@ -51,8 +52,6 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
     Logger.start();
     timeOffset = System.nanoTime() / 1E9 - Logger.getTimestamp();
-
-    psiKitSetup();
 
     {
       double initTime = Logger.getTimestamp();
