@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Rotation2dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolatable;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
@@ -297,7 +296,4 @@ public class Rotation2d implements Interpolatable<Rotation2d> {
   public Rotation2d interpolate(Rotation2d endValue, double t) {
     return plus(endValue.minus(this).times(MathUtil.clamp(t, 0, 1)));
   }
-
-  /** Rotation2d struct for serialization. */
-  public static final Rotation2dStruct struct = new Rotation2dStruct();
 }

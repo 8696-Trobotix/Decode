@@ -3,8 +3,6 @@
 
 package org.firstinspires.ftc.lib.wpilib.wpilibj;
 
-import org.psilynx.psikit.core.Logger;
-
 /**
  * A timer class.
  *
@@ -38,7 +36,11 @@ public class Timer {
   }
 
   private double getMsClock() {
-    return Logger.getTimestamp() * 1000;
+    return getTimestampSeconds() * 1000;
+  }
+
+  public static double getTimestampSeconds() {
+    return System.nanoTime() / 1e9;
   }
 
   /**

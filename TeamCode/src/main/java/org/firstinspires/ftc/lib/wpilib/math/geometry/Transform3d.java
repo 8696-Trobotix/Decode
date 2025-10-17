@@ -7,12 +7,10 @@ import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.MatBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.lib.wpilib.math.Nat;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Transform3dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N4;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /** Represents a transformation for a Pose3d in the pose's frame. */
-public class Transform3d implements StructSerializable {
+public class Transform3d {
   /**
    * A preallocated Transform3d representing no transformation.
    *
@@ -241,7 +239,4 @@ public class Transform3d implements StructSerializable {
   public int hashCode() {
     return Objects.hash(m_translation, m_rotation);
   }
-
-  /** Transform3d struct for serialization. */
-  public static final Transform3dStruct struct = new Transform3dStruct();
 }

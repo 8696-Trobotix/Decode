@@ -6,12 +6,10 @@ package org.firstinspires.ftc.lib.wpilib.math.geometry;
 import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.Vector;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.QuaternionStruct;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /** Represents a quaternion. */
-public class Quaternion implements StructSerializable {
+public class Quaternion {
   // Scalar r in versor form
   private final double m_w;
 
@@ -386,7 +384,4 @@ public class Quaternion implements StructSerializable {
 
     return VecBuilder.fill(coeff * getX(), coeff * getY(), coeff * getZ());
   }
-
-  /** Quaternion struct for serialization. */
-  public static final QuaternionStruct struct = new QuaternionStruct();
 }

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.lib.wpilib.math.geometry.Twist2d;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.TimeInterpolatableBuffer;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
-import org.psilynx.psikit.core.Logger;
+import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
 
 /**
  * This class wraps {@link Pinpoint} to fuse latency-compensated vision measurements with encoder
@@ -297,7 +297,7 @@ public class PinpointPoseEstimator {
    * @return The estimated pose of the robot in meters.
    */
   public Pose2d update() {
-    return updateWithTime(Logger.getTimestamp());
+    return updateWithTime(Timer.getTimestampSeconds());
   }
 
   /**

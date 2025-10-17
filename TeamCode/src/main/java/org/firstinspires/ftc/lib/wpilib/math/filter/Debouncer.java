@@ -3,7 +3,7 @@
 
 package org.firstinspires.ftc.lib.wpilib.math.filter;
 
-import org.psilynx.psikit.core.Logger;
+import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
 
 /**
  * A simple debounce filter for boolean streams. Requires that the boolean change value from
@@ -57,11 +57,11 @@ public class Debouncer {
   }
 
   private void resetTimer() {
-    m_prevTimeSeconds = Logger.getTimestamp();
+    m_prevTimeSeconds = Timer.getTimestampSeconds();
   }
 
   private boolean hasElapsed() {
-    return Logger.getTimestamp() - m_prevTimeSeconds >= m_debounceTimeSeconds;
+    return Timer.getTimestampSeconds() - m_prevTimeSeconds >= m_debounceTimeSeconds;
   }
 
   /**

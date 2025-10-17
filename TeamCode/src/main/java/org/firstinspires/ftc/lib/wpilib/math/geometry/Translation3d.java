@@ -7,10 +7,8 @@ import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.Vector;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Translation3dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolatable;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /**
  * Represents a translation in 3D space. This object can be used to represent a point or a vector.
@@ -19,7 +17,7 @@ import org.psilynx.psikit.core.wpi.StructSerializable;
  * origin facing in the positive X direction, forward is positive X, left is positive Y, and up is
  * positive Z.
  */
-public class Translation3d implements Interpolatable<Translation3d>, StructSerializable {
+public class Translation3d implements Interpolatable<Translation3d> {
   /**
    * A preallocated Translation3d representing the origin.
    *
@@ -268,7 +266,4 @@ public class Translation3d implements Interpolatable<Translation3d>, StructSeria
         MathUtil.interpolate(this.getY(), endValue.getY(), t),
         MathUtil.interpolate(this.getZ(), endValue.getZ(), t));
   }
-
-  /** Translation3d struct for serialization. */
-  public static final Translation3dStruct struct = new Translation3dStruct();
 }

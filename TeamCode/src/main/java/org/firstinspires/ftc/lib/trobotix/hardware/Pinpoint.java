@@ -7,10 +7,6 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.psilynx.psikit.ftc.GoBildaPinpointDriver;
 
 public class Pinpoint {
   private final GoBildaPinpointDriver pinpoint;
@@ -22,7 +18,7 @@ public class Pinpoint {
       boolean xInverted,
       boolean yInverted) {
     pinpoint = BaseOpMode.hardwareMap.get(GoBildaPinpointDriver.class, name);
-    pinpoint.setOffsets(xWheelYPosMeters, yWheelXPosMeters, DistanceUnit.METER);
+    pinpoint.setOffsets(xWheelYPosMeters, yWheelXPosMeters);
     pinpoint.setEncoderDirections(
         xInverted
             ? GoBildaPinpointDriver.EncoderDirection.FORWARD
@@ -42,31 +38,20 @@ public class Pinpoint {
   public Pose2d getPose(boolean update) {
     if (update) {
       pinpoint.update();
-      cachedPose =
-          new Pose2d(
-              pinpoint.getPosX(DistanceUnit.METER),
-              pinpoint.getPosY(DistanceUnit.METER),
-              new Rotation2d(pinpoint.getHeading(AngleUnit.RADIANS)));
+      cachedPose = pinpoint.getPose();
     }
     return cachedPose;
   }
 
   public void resetPose(Pose2d pose) {
-    pinpoint.setPosition(
-        new Pose2D(
-            DistanceUnit.METER,
-            pose.getX(),
-            pose.getY(),
-            AngleUnit.RADIANS,
-            pose.getRotation().getRadians()));
+    pinpoint.setPose(pose);
   }
 
   public void resetTranslation(Translation2d translation) {
-    pinpoint.setPosX(translation.getX(), DistanceUnit.METER);
-    pinpoint.setPosY(translation.getY(), DistanceUnit.METER);
+    pinpoint.setTranslation(translation);
   }
 
   public void resetRotation(Rotation2d rotation) {
-    pinpoint.setHeading(rotation.getRadians(), AngleUnit.RADIANS);
+    pinpoint.setHeading(rotation);
   }
 }

@@ -12,9 +12,6 @@ import org.ejml.dense.row.factory.DecompositionFactory_DDRM;
 import org.ejml.interfaces.decomposition.CholeskyDecomposition_F64;
 import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N1;
-import org.firstinspires.ftc.lib.wpilib.math.struct.MatrixStruct;
-import org.psilynx.psikit.core.wpi.Struct;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /**
  * A shape-safe wrapper over Efficient Java Matrix Library (EJML) matrices.
@@ -24,7 +21,7 @@ import org.psilynx.psikit.core.wpi.StructSerializable;
  * @param <R> The number of rows in this matrix.
  * @param <C> The number of columns in this matrix.
  */
-public class Matrix<R extends Num, C extends Num> implements StructSerializable {
+public class Matrix<R extends Num, C extends Num> {
   /** Storage for underlying EJML matrix. */
   protected final SimpleMatrix m_storage;
 
@@ -651,19 +648,5 @@ public class Matrix<R extends Num, C extends Num> implements StructSerializable 
   @Override
   public int hashCode() {
     return Objects.hash(m_storage);
-  }
-
-  /**
-   * Creates an implementation of the {@link Struct} interfaces for matrices.
-   *
-   * @param <R> The number of rows of the matrices this serializer processes.
-   * @param <C> The number of cols of the matrices this serializer processes.
-   * @param rows The number of rows of the matrices this serializer processes.
-   * @param cols The number of cols of the matrices this serializer processes.
-   * @return The struct implementation.
-   */
-  public static <R extends Num, C extends Num> MatrixStruct<R, C> getStruct(
-      Nat<R> rows, Nat<C> cols) {
-    return new MatrixStruct<>(rows, cols);
   }
 }

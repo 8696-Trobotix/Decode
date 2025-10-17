@@ -7,12 +7,10 @@ import java.util.Objects;
 import org.firstinspires.ftc.lib.wpilib.math.MatBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.lib.wpilib.math.Nat;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Pose3dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N4;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /** Represents a 3D pose containing translational and rotational elements. */
-public class Pose3d implements StructSerializable {
+public class Pose3d {
   /**
    * A preallocated Pose3d representing the origin.
    *
@@ -283,7 +281,4 @@ public class Pose3d implements StructSerializable {
   public int hashCode() {
     return Objects.hash(m_translation, m_rotation);
   }
-
-  /** Pose3d struct for serialization. */
-  public static final Pose3dStruct struct = new Pose3dStruct();
 }

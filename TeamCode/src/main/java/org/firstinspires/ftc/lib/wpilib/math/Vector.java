@@ -7,9 +7,6 @@ import java.util.Objects;
 import org.ejml.simple.SimpleMatrix;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N1;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
-import org.firstinspires.ftc.lib.wpilib.math.struct.VectorStruct;
-import org.psilynx.psikit.core.wpi.Struct;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /**
  * A shape-safe wrapper over Efficient Java Matrix Library (EJML) matrices.
@@ -18,7 +15,7 @@ import org.psilynx.psikit.core.wpi.StructSerializable;
  *
  * @param <R> The number of rows in this matrix.
  */
-public class Vector<R extends Num> extends Matrix<R, N1> implements StructSerializable {
+public class Vector<R extends Num> extends Matrix<R, N1> {
   /**
    * Constructs an empty zero vector of the given dimensions.
    *
@@ -152,16 +149,5 @@ public class Vector<R extends Num> extends Matrix<R, N1> implements StructSerial
         a.get(1) * b.get(2) - a.get(2) * b.get(1),
         a.get(2) * b.get(0) - a.get(0) * b.get(2),
         a.get(0) * b.get(1) - a.get(1) * b.get(0));
-  }
-
-  /**
-   * Creates an implementation of the {@link Struct} interface for vectors.
-   *
-   * @param <R> The number of rows of the vectors this serializer processes.
-   * @param rows The number of rows of the vectors this serializer processes.
-   * @return The struct implementation.
-   */
-  public static final <R extends Num> VectorStruct<R> getStruct(Nat<R> rows) {
-    return new VectorStruct<>(rows);
   }
 }

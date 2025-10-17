@@ -6,6 +6,7 @@ package org.firstinspires.ftc.lib.trobotix;
 import com.outoftheboxrobotics.photoncore.Photon;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.lynx.LynxVoltageSensor;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,15 +14,12 @@ import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.wpilib.command.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
+import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
 import org.firstinspires.ftc.teamcode.BuildConstants;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.psilynx.psikit.core.Logger;
-import org.psilynx.psikit.core.rlog.RLOGServer;
-import org.psilynx.psikit.core.rlog.RLOGWriter;
-import org.psilynx.psikit.ftc.PsiKitOpMode;
 
 @Photon
-public abstract class BaseOpMode extends PsiKitOpMode {
+public abstract class BaseOpMode extends LinearOpMode {
   private final String name;
 
   protected BaseOpMode() {
@@ -39,32 +37,12 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     var voltageSensor = super.hardwareMap.getAll(LynxVoltageSensor.class).iterator().next();
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
-    psiKitSetup();
-    Logger.addDataReceiver(new RLOGServer());
-    //    Logger.setReplaySource(new RLOGReplay(""));
-    Logger.addDataReceiver(new RLOGWriter());
-    Logger.recordMetadata("Active Op Mode", activeOpMode);
-    Logger.recordMetadata("Build Date", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("Git Commit Hash", BuildConstants.GIT_SHA);
-    Logger.recordMetadata("Git Commit Date", BuildConstants.GIT_DATE);
-    Logger.recordMetadata("Git Branch", BuildConstants.GIT_BRANCH);
-    //noinspection ConstantValue
-    Logger.recordMetadata("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
-    Logger.start();
-    timeOffset = System.nanoTime() / 1E9 - Logger.getTimestamp();
+    Telemetry.setTelemetry(telemetry);
 
-    {
-      double initTime = Logger.getTimestamp();
-      Logger.periodicBeforeUser();
-      double periodicBeforeUserTime = Logger.getTimestamp();
-      processHardwareInputs();
-      Robot.init();
-      if (!initializedOpModes.contains(activeOpMode)) {
-        initialize();
-        initializedOpModes.add(activeOpMode);
-      }
-      Logger.periodicAfterUser(
-          Logger.getTimestamp() - periodicBeforeUserTime, periodicBeforeUserTime - initTime);
+    Robot.init();
+    if (!initializedOpModes.contains(activeOpMode)) {
+      initialize();
+      initializedOpModes.add(activeOpMode);
     }
 
     for (var hook : resetHooks) {
@@ -72,28 +50,29 @@ public abstract class BaseOpMode extends PsiKitOpMode {
     }
 
     double dt = 1;
-    while (!getPsiKitIsStopRequested()) {
-      double startTime = Logger.getTimestamp();
-      Logger.periodicBeforeUser();
-      double periodicBeforeUserTime = Logger.getTimestamp();
+    while (!isStopRequested()) {
+      double startTime = Timer.getTimestampSeconds();
       telemetry.addData("Active Op Mode", name);
       telemetry.addData("Current time", startTime);
+      telemetry.addData("Git SHA", BuildConstants.GIT_SHA);
       //noinspection ConstantValue
       telemetry.addData("Uncommited changes?", BuildConstants.DIRTY == 1 ? "YES" : "No");
-      robotEnabled = getPsiKitIsStarted();
-      processHardwareInputs();
+      for (var module : lynxModules) {
+        module.getBulkData();
+      }
+      robotEnabled = isStarted();
       Encoder.recalculateVelocity(dt);
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
-      dt = Logger.getTimestamp() - startTime;
+      dt = Timer.getTimestampSeconds() - startTime;
+      Telemetry.logRobotStats(dt);
       telemetry.update();
-      Logger.periodicAfterUser(dt - periodicBeforeUserTime, periodicBeforeUserTime);
+      Telemetry.sendDashboardTelemetry();
     }
     robotEnabled = false;
     CommandScheduler.getInstance().run();
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
-    Logger.end();
   }
 
   protected abstract void initialize();
@@ -137,8 +116,6 @@ public abstract class BaseOpMode extends PsiKitOpMode {
   public static String activeOpMode = null;
 
   public static HardwareMap hardwareMap = null;
-
-  public static double timeOffset = 0;
 
   public static double busVoltage = 12;
 }

@@ -10,13 +10,11 @@ import org.firstinspires.ftc.lib.wpilib.math.Matrix;
 import org.firstinspires.ftc.lib.wpilib.math.Nat;
 import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.Vector;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.struct.Rotation3dStruct;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.Interpolatable;
 import org.firstinspires.ftc.lib.wpilib.math.numbers.N3;
-import org.psilynx.psikit.core.wpi.StructSerializable;
 
 /** A rotation in a 3D coordinate frame represented by a quaternion. */
-public class Rotation3d implements Interpolatable<Rotation3d>, StructSerializable {
+public class Rotation3d implements Interpolatable<Rotation3d> {
   /**
    * A preallocated Rotation3d representing no rotation.
    *
@@ -480,7 +478,4 @@ public class Rotation3d implements Interpolatable<Rotation3d>, StructSerializabl
   public Rotation3d interpolate(Rotation3d endValue, double t) {
     return plus(endValue.minus(this).times(MathUtil.clamp(t, 0, 1)));
   }
-
-  /** Rotation3d struct for serialization. */
-  public static final Rotation3dStruct struct = new Rotation3dStruct();
 }
