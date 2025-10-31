@@ -25,29 +25,29 @@ public class Drivetrain extends SubsystemBase {
             new Motor("Motor0"),
             new Encoder("Motor0", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            6,
-            4);
+            8,
+            6);
     frontRight =
         new ModeledMotor(
             new Motor("Motor1"),
             new Encoder("Motor1", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            6,
-            4);
+            8,
+            6);
     backLeft =
         new ModeledMotor(
             new Motor("Motor2"),
             new Encoder("Motor2", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            6,
-            4);
+            8,
+            6);
     backRight =
         new ModeledMotor(
             new Motor("Motor3"),
             new Encoder("Motor3", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            6,
-            4);
+            8,
+            6);
 
     frontRight.setInverted(true);
     backRight.setInverted(true);

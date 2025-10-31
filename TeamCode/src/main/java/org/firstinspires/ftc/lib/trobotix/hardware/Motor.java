@@ -13,9 +13,17 @@ public class Motor {
 
   public Motor(String name) {
     internalMotor = (DcMotorEx) BaseOpMode.hardwareMap.dcMotor.get(name);
+    BaseOpMode.addResetHook(this::internalSetBrake);
   }
 
+  private boolean brake = false;
+
   public void setBrake(boolean brake) {
+    this.brake = brake;
+    internalSetBrake();
+  }
+
+  private void internalSetBrake() {
     internalMotor.setZeroPowerBehavior(
         brake ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
   }

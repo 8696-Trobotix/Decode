@@ -76,7 +76,7 @@ public class Pinpoint {
       name = "goBILDA® Pinpoint Odometry Computer",
       xmlTag = "goBILDAPinpoint",
       description = "goBILDA® Pinpoint Odometry Computer (IMU Sensor Fusion for 2 Wheel Odometry)")
-  private static class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
+  public static class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSimple> {
 
     private int deviceID = 0;
     private int deviceVersion = 0;
