@@ -57,8 +57,8 @@ public class Drivetrain extends SubsystemBase {
     backRight.setBrake(true);
   }
 
-  private static final double wheelbaseLengthMeters = Units.inchesToMeters(10);
-  private static final double wheelbaseWidthMeters = Units.inchesToMeters(10);
+  private static final double wheelbaseLengthMeters = Units.inchesToMeters(11.5);
+  private static final double wheelbaseWidthMeters = Units.inchesToMeters(12.5);
   private static final MecanumDriveKinematics kinematics =
       new MecanumDriveKinematics(
           new Translation2d(wheelbaseLengthMeters / 2, wheelbaseWidthMeters / 2),
