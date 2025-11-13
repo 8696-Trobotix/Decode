@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
+import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
@@ -38,12 +39,10 @@ public abstract class BaseOpMode extends LinearOpMode {
     activeOpMode = name;
     BaseOpMode.hardwareMap = super.hardwareMap;
     Telemetry.setTelemetry(telemetry);
+    Telemetry.initTelemetry();
 
     Robot.init();
-    if (!initializedOpModes.contains(activeOpMode)) {
-      initialize();
-      initializedOpModes.add(activeOpMode);
-    }
+    initialize();
 
     for (var hook : resetHooks) {
       hook.run();
@@ -71,6 +70,9 @@ public abstract class BaseOpMode extends LinearOpMode {
     }
     robotEnabled = false;
     CommandScheduler.getInstance().run();
+    CommandScheduler.getInstance().cancelAll();
+    CommandScheduler.getInstance().getDefaultButtonLoop().clear();
+    CommandScheduler.getInstance().clearComposedCommands();
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
   }
@@ -107,8 +109,6 @@ public abstract class BaseOpMode extends LinearOpMode {
    */
   protected final CommandXboxController secondaryController =
       new CommandXboxController(() -> gamepad2);
-
-  private static final ArrayList<String> initializedOpModes = new ArrayList<>();
   private static final HashMap<String, Trigger> opModeEnableTriggers = new HashMap<>();
 
   public static boolean robotEnabled = false;

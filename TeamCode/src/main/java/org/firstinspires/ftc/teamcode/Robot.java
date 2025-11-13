@@ -4,6 +4,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 public class Robot {
   private static Robot instance = null;
@@ -20,8 +21,10 @@ public class Robot {
   }
 
   public final Drivetrain drivetrain;
+  public final Flywheel flywheel;
 
   private Robot() {
     drivetrain = new Drivetrain();
+    flywheel = new Flywheel();
   }
 }

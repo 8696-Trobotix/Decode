@@ -23,5 +23,6 @@ public class Drive extends BaseOpMode {
                             -primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
+    enabled().whileTrue(Robot.getInstance().flywheel.spinUp());
   }
 }
