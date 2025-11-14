@@ -4,14 +4,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp
-public class Drive extends BaseOpMode {
+public class DriveAndShoot extends BaseOpMode {
   @Override
   protected void initialize() {
     enabled()
@@ -24,5 +23,7 @@ public class Drive extends BaseOpMode {
                             -primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
+    enabled().whileTrue(Robot.getInstance().flywheel.spinUp());
+    primaryController.rightTrigger().whileTrue(Robot.getInstance().feeder.feed());
   }
 }

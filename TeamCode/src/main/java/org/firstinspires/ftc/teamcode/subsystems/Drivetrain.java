@@ -4,8 +4,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import java.util.function.Supplier;
-import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
-import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
@@ -17,37 +15,13 @@ import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 public class Drivetrain extends SubsystemBase {
-  private final ModeledMotor frontLeft, frontRight, backLeft, backRight;
+  private final Motor frontLeft, frontRight, backLeft, backRight;
 
   public Drivetrain() {
-    frontLeft =
-        new ModeledMotor(
-            new Motor("Motor0"),
-            new Encoder("Motor0", Encoder.CountsPerRevolution.GOBILDA_435RPM),
-            DCMotor.GOBILDA_5203_435RPM(1),
-            8,
-            6);
-    frontRight =
-        new ModeledMotor(
-            new Motor("Motor1"),
-            new Encoder("Motor1", Encoder.CountsPerRevolution.GOBILDA_435RPM),
-            DCMotor.GOBILDA_5203_435RPM(1),
-            8,
-            6);
-    backLeft =
-        new ModeledMotor(
-            new Motor("Motor2"),
-            new Encoder("Motor2", Encoder.CountsPerRevolution.GOBILDA_435RPM),
-            DCMotor.GOBILDA_5203_435RPM(1),
-            8,
-            6);
-    backRight =
-        new ModeledMotor(
-            new Motor("Motor3"),
-            new Encoder("Motor3", Encoder.CountsPerRevolution.GOBILDA_435RPM),
-            DCMotor.GOBILDA_5203_435RPM(1),
-            8,
-            6);
+    frontLeft = new Motor("Motor0");
+    frontRight = new Motor("Motor1");
+    backLeft = new Motor("Motor2");
+    backRight = new Motor("Motor3");
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
