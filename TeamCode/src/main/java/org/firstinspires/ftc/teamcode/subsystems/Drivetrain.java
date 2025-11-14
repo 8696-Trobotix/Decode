@@ -3,10 +3,14 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.Supplier;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
@@ -17,11 +21,20 @@ import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 public class Drivetrain extends SubsystemBase {
   private final Motor frontLeft, frontRight, backLeft, backRight;
 
+  private final IMU imu;
+
   public Drivetrain() {
     frontLeft = new Motor("Motor0");
     frontRight = new Motor("Motor1");
     backLeft = new Motor("Motor2");
     backRight = new Motor("Motor3");
+
+    imu = BaseOpMode.hardwareMap.get(IMU.class, "exhubIMU");
+    imu.initialize(
+        new IMU.Parameters(
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.DOWN)));
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
@@ -55,7 +68,11 @@ public class Drivetrain extends SubsystemBase {
   public Command drive(Supplier<ChassisSpeeds> speeds) {
     return run(
         () -> {
-          var wheelSpeeds = kinematics.toWheelSpeeds(speeds.get());
+          var chassisSpeeds =
+              ChassisSpeeds.fromFieldRelativeSpeeds(
+                  speeds.get(), Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw()));
+
+          var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
           wheelSpeeds.desaturate(maxSpeedMetersPerSec);
 
           frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);

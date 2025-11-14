@@ -4,11 +4,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp
 public class Shoot extends BaseOpMode {

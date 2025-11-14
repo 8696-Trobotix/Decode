@@ -3,18 +3,14 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.firstinspires.ftc.lib.trobotix.Telemetry;
-import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
-import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
-import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 
 public class Flywheel extends SubsystemBase {
   private final Motor motor = new Motor("Motor4");
 
-    public Command spinUp() {
+  public Command spinUp() {
     return run(
         () -> {
           double targetRPM = 5000;

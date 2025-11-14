@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
-import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.CommandScheduler;
 import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
@@ -109,6 +108,7 @@ public abstract class BaseOpMode extends LinearOpMode {
    */
   protected final CommandXboxController secondaryController =
       new CommandXboxController(() -> gamepad2);
+
   private static final HashMap<String, Trigger> opModeEnableTriggers = new HashMap<>();
 
   public static boolean robotEnabled = false;
