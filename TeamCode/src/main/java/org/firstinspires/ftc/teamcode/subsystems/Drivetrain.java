@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
+import org.firstinspires.ftc.lib.wpilib.command.Commands;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
@@ -80,5 +81,9 @@ public class Drivetrain extends SubsystemBase {
           backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
           backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
         });
+  }
+
+  public Command resetGyro() {
+    return Commands.runOnce(imu::resetYaw);
   }
 }

@@ -13,7 +13,7 @@ public class Flywheel extends SubsystemBase {
   public Command spinUp() {
     return run(
         () -> {
-          double targetRPM = 5000;
+          double targetRPM = 4000;
           var feedforward = targetRPM * (12.0 / 6000);
           motor.setVoltage(feedforward);
         });

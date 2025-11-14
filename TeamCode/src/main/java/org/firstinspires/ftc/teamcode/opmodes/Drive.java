@@ -20,8 +20,9 @@ public class Drive extends BaseOpMode {
                 .drive(
                     () ->
                         new ChassisSpeeds(
-                            -primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
-                            -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
+                            primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
+                            primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
+    primaryController.a().onTrue(Robot.getInstance().drivetrain.resetGyro());
   }
 }

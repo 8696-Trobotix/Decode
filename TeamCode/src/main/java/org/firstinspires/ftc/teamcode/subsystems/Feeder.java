@@ -16,7 +16,7 @@ public class Feeder extends SubsystemBase {
     return startEnd(
         () -> {
           left.setPosition(1);
-          right.setPosition(1);
+          right.setPosition(0);
         },
         () -> {
           left.setPosition(0.5);
