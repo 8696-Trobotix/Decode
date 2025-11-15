@@ -16,7 +16,7 @@ public class MovePoints extends BaseOpMode {
         .onTrue(
             Robot.getInstance()
                 .drivetrain
-                .driveRobotRelative(new ChassisSpeeds(.75, 0, 0))
+                .driveRobotRelative(new ChassisSpeeds(-.75, 0, 0))
                 .withTimeout(1));
   }
 }
