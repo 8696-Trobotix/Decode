@@ -45,15 +45,17 @@ public final class Telemetry {
     dashboardTelemetryPacket.put("DS/" + name, data);
   }
 
-  static void logRobotStats(double dt) {
-    dashboardTelemetryPacket.put("Robot/dt", dt);
+  static void logRobotStats(double dt, double voltage) {
     var memoryUsedMB =
         (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1e6;
+    dashboardTelemetryPacket.put("Robot/dt", dt);
+    dashboardTelemetryPacket.put("Robot/Voltage", voltage);
     dashboardTelemetryPacket.put("Robot/Memory used MB", memoryUsedMB);
     if (telemetry == null) {
       return;
     }
     telemetry.addData("Robot/dt", dt);
+    telemetry.addData("Robot/Voltage", voltage);
     telemetry.addData("Robot/Memory used MB", memoryUsedMB);
   }
 

@@ -63,7 +63,7 @@ public abstract class BaseOpMode extends LinearOpMode {
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
       dt = Timer.getTimestampSeconds() - startTime;
-      Telemetry.logRobotStats(dt);
+      Telemetry.logRobotStats(dt, busVoltage);
       telemetry.update();
       Telemetry.sendDashboardTelemetry();
     }
