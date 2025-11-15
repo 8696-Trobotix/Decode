@@ -11,6 +11,7 @@ import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.Commands;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
@@ -21,6 +22,10 @@ import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 public class Drivetrain extends SubsystemBase {
   private final Motor frontLeft, frontRight, backLeft, backRight;
+  private final SlewRateLimiter frontLeftLimiter,
+      frontRightLimiter,
+      backLeftLimiter,
+      backRightLimiter;
 
   private final IMU imu;
 
@@ -43,6 +48,12 @@ public class Drivetrain extends SubsystemBase {
     frontRight.setBrake(true);
     backLeft.setBrake(true);
     backRight.setBrake(true);
+
+    var timeToMaxSpeedSec = .075;
+    frontLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
+    frontRightLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
+    backLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
+    backRightLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
   }
 
   private static final double wheelbaseLengthMeters = Units.inchesToMeters(11.5);
@@ -76,10 +87,18 @@ public class Drivetrain extends SubsystemBase {
           var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
           wheelSpeeds.desaturate(maxSpeedMetersPerSec);
 
-          frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);
-          frontRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond);
-          backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
-          backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
+          frontLeft.setVoltage(
+              kV_voltsPerMetersPerSec
+                  * frontLeftLimiter.calculate(wheelSpeeds.frontLeftMetersPerSecond));
+          frontRight.setVoltage(
+              kV_voltsPerMetersPerSec
+                  * frontRightLimiter.calculate(wheelSpeeds.frontRightMetersPerSecond));
+          backLeft.setVoltage(
+              kV_voltsPerMetersPerSec
+                  * backLeftLimiter.calculate(wheelSpeeds.rearLeftMetersPerSecond));
+          backRight.setVoltage(
+              kV_voltsPerMetersPerSec
+                  * backRightLimiter.calculate(wheelSpeeds.rearRightMetersPerSecond));
         });
   }
 
