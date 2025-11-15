@@ -83,6 +83,25 @@ public class Drivetrain extends SubsystemBase {
         });
   }
 
+  public Command driveRobotRelative(ChassisSpeeds speeds) {
+    return run(() -> {
+          var wheelSpeeds = kinematics.toWheelSpeeds(speeds);
+          wheelSpeeds.desaturate(maxSpeedMetersPerSec);
+
+          frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);
+          frontRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond);
+          backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
+          backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
+        })
+        .finallyDo(
+            () -> {
+              frontLeft.setVoltage(0);
+              frontRight.setVoltage(0);
+              backLeft.setVoltage(0);
+              backRight.setVoltage(0);
+            });
+  }
+
   public Command resetGyro() {
     return Commands.runOnce(imu::resetYaw);
   }
