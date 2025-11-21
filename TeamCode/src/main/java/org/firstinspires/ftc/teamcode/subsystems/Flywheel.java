@@ -8,14 +8,26 @@ import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
 
 public class Flywheel extends SubsystemBase {
-  private final Motor motor = new Motor("Motor4");
+  private final ModeledMotor motor =
+      new ModeledMotor(
+          new Motor("Motor5"),
+          new Encoder("Motor5", Encoder.CountsPerRevolution.GOBILDA_6000RPM),
+          DCMotor.GOBILDA_5203_6000RPM(1),
+          9,
+          5);
+
+    @Override
+    public void periodic() {
+        Telemetry.addDashboardData("Flywheel/Velocity RPM", motor.getEncoder().getVelocity() * 60);
+    }
 
   public Command spinUp() {
     return run(
         () -> {
           double targetRPM = 5000;
           var feedforward = targetRPM * (12.0 / 6000);
-          motor.setVoltage(feedforward);
+          var feedback = (12.0 / 100) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
+          motor.setVoltage(feedforward + feedback);
         });
   }
 }
