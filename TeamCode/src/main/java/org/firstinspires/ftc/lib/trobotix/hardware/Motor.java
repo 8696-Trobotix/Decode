@@ -6,13 +6,16 @@ package org.firstinspires.ftc.lib.trobotix.hardware;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 
 public class Motor {
   private final DcMotorEx internalMotor;
+  private final String name;
 
   public Motor(String name) {
     internalMotor = (DcMotorEx) BaseOpMode.hardwareMap.dcMotor.get(name);
+    this.name = name;
     BaseOpMode.addResetHook(this::internalSetBrake);
   }
 
@@ -48,11 +51,13 @@ public class Motor {
         || !MathUtil.isNear(lastDutyCycle, dutyCycle, tolerance)) {
       internalMotor.setPower(inverted ? -dutyCycle : dutyCycle);
       lastDutyCycle = dutyCycle;
+      Telemetry.addDashboardData(name + "/DutyCycle", dutyCycle);
     }
   }
 
   public void setVoltage(double volts) {
     set(volts / BaseOpMode.busVoltage);
+    Telemetry.addDashboardData(name + "/Volts", volts);
   }
 
   public void setTolerance(double tolerance) {

@@ -3,9 +3,13 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import org.firstinspires.ftc.lib.trobotix.Telemetry;
+import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
+import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 
 public class Flywheel extends SubsystemBase {
   private final ModeledMotor motor =
@@ -16,17 +20,19 @@ public class Flywheel extends SubsystemBase {
           9,
           5);
 
-    @Override
-    public void periodic() {
-        Telemetry.addDashboardData("Flywheel/Velocity RPM", motor.getEncoder().getVelocity() * 60);
-    }
+  @Override
+  public void periodic() {
+    Telemetry.addDashboardData("Flywheel/Position Rotations", motor.getEncoder().getPosition());
+    Telemetry.addDashboardData("Flywheel/Velocity RPM", motor.getEncoder().getVelocity() * 60);
+  }
 
   public Command spinUp() {
     return run(
         () -> {
-          double targetRPM = 5000;
-          var feedforward = targetRPM * (12.0 / 6000);
+          double targetRPM = 4000;
+          var feedforward = targetRPM * (10.0 / 4000);
           var feedback = (12.0 / 100) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
+          Telemetry.addDSData("Flywheel/Commanded Voltage", feedforward + feedback);
           motor.setVoltage(feedforward + feedback);
         });
   }

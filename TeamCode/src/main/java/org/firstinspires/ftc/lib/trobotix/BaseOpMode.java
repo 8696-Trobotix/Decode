@@ -47,7 +47,8 @@ public abstract class BaseOpMode extends LinearOpMode {
       hook.run();
     }
 
-    double dt = 1;
+    double dt;
+    double lastVelUpdateTime = Timer.getTimestampSeconds();
     while (!isStopRequested()) {
       double startTime = Timer.getTimestampSeconds();
       telemetry.addData("Active Op Mode", name);
@@ -59,7 +60,11 @@ public abstract class BaseOpMode extends LinearOpMode {
         module.getBulkData();
       }
       robotEnabled = isStarted();
-      Encoder.recalculateVelocity(dt);
+      double lastVelUpdateDt = startTime - lastVelUpdateTime;
+      if (lastVelUpdateDt > (1.0 / 50)) {
+        Encoder.recalculateVelocity(lastVelUpdateDt);
+        lastVelUpdateTime = startTime;
+      }
       busVoltage = voltageSensor.getVoltage();
       CommandScheduler.getInstance().run();
       dt = Timer.getTimestampSeconds() - startTime;
