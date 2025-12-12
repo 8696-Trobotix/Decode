@@ -3,11 +3,13 @@
 
 package org.firstinspires.ftc.lib.trobotix;
 
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation3d;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
@@ -25,8 +27,8 @@ public final class CoordinateSystems {
   public static Position WPILibToFieldCoordinates(Translation3d translation3d) {
     return new Position(
         DistanceUnit.METER,
-        Units.inchesToMeters(6) + translation3d.getY(),
-        Units.inchesToMeters(6) - translation3d.getX(),
+        Units.feetToMeters(6) + translation3d.getY(),
+        Units.feetToMeters(6) - translation3d.getX(),
         translation3d.getZ(),
         0);
   }
@@ -67,7 +69,7 @@ public final class CoordinateSystems {
       default -> throw new IllegalArgumentException("Position unit was null!");
     }
     return new Translation3d(
-        Units.inchesToMeters(6) - yMeters, xMeters - Units.inchesToMeters(6), zMeters);
+        Units.feetToMeters(6) - yMeters, xMeters - Units.feetToMeters(6), zMeters);
   }
 
   /**
@@ -144,5 +146,15 @@ public final class CoordinateSystems {
         yawPitchRollAngles.getRoll(AngleUnit.RADIANS),
         -yawPitchRollAngles.getPitch(AngleUnit.RADIANS),
         yawPitchRollAngles.getYaw(AngleUnit.RADIANS));
+  }
+
+  public static Pose3d fieldPoseToWPILib(Pose3D pose) {
+    return new Pose3d(
+        fieldCoordinatesToWPILib(pose.getPosition()), SDKRotationToWPILib(pose.getOrientation()));
+  }
+
+  public static Pose3D WPILibToFieldPose(Pose3d pose) {
+    return new Pose3D(
+        WPILibToFieldCoordinates(pose.getTranslation()), WPILibToSDKRotation(pose.getRotation()));
   }
 }
