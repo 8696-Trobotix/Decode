@@ -3,6 +3,8 @@
 
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import static org.firstinspires.ftc.lib.wpilib.command.Commands.parallel;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
@@ -24,7 +26,11 @@ public class DriveAndShoot extends BaseOpMode {
                             -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
                             -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
     primaryController.a().onTrue(Robot.getInstance().drivetrain.resetGyro());
-    enabled().whileTrue(Robot.getInstance().flywheel.spinUp());
-    primaryController.rightTrigger().whileTrue(Robot.getInstance().feeder.feed());
+    primaryController
+        .rightTrigger()
+        .whileTrue(
+            parallel(
+                Robot.getInstance().feeder.feed().repeatedly(),
+                Robot.getInstance().flywheel.spinUp()));
   }
 }

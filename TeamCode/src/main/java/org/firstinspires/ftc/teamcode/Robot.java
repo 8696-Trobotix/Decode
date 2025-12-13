@@ -28,6 +28,6 @@ public class Robot {
   private Robot() {
     drivetrain = new Drivetrain();
     flywheel = new Flywheel();
-    feeder = new Feeder();
+    feeder = new Feeder(flywheel::getVelocityRPS);
   }
 }

@@ -4,9 +4,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.IMU;
 import java.util.function.Supplier;
-import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.hardware.Gyro;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.Commands;
@@ -27,7 +26,7 @@ public class Drivetrain extends SubsystemBase {
       backLeftLimiter,
       backRightLimiter;
 
-  private final IMU imu;
+  private final Gyro gyro;
 
   public Drivetrain() {
     frontLeft = new Motor("Motor0");
@@ -35,12 +34,12 @@ public class Drivetrain extends SubsystemBase {
     backLeft = new Motor("Motor2");
     backRight = new Motor("Motor3");
 
-    imu = BaseOpMode.hardwareMap.get(IMU.class, "exhubIMU");
-    imu.initialize(
-        new IMU.Parameters(
+    gyro =
+        new Gyro(
+            "exhubIMU",
             new RevHubOrientationOnRobot(
                 RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.DOWN)));
+                RevHubOrientationOnRobot.UsbFacingDirection.DOWN));
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
@@ -49,7 +48,7 @@ public class Drivetrain extends SubsystemBase {
     backLeft.setBrake(true);
     backRight.setBrake(true);
 
-    var timeToMaxSpeedSec = .075;
+    var timeToMaxSpeedSec = .125;
     frontLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
     frontRightLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
     backLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
@@ -80,9 +79,7 @@ public class Drivetrain extends SubsystemBase {
   public Command drive(Supplier<ChassisSpeeds> speeds) {
     return run(
         () -> {
-          var chassisSpeeds =
-              ChassisSpeeds.fromFieldRelativeSpeeds(
-                  speeds.get(), Rotation2d.fromDegrees(imu.getRobotYawPitchRollAngles().getYaw()));
+          var chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(speeds.get(), gyro.getYaw());
 
           var wheelSpeeds = kinematics.toWheelSpeeds(chassisSpeeds);
           wheelSpeeds.desaturate(maxSpeedMetersPerSec);
@@ -122,6 +119,10 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public Command resetGyro() {
-    return Commands.runOnce(imu::resetYaw);
+    return setGyro(Rotation2d.kZero);
+  }
+
+  public Command setGyro(Rotation2d newYaw) {
+    return Commands.runOnce(() -> gyro.setYaw(newYaw));
   }
 }
