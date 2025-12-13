@@ -5,6 +5,7 @@ package org.firstinspires.ftc.lib.trobotix.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
@@ -36,26 +37,38 @@ public class ModeledMotor {
       volts = Math.max(volts, -getVoltageLimit(-velRadPerSec));
     }
 
+    double statorCurrent;
+    if (volts >= 0) {
+      statorCurrent = getStatorCurrent(velRadPerSec, volts);
+    } else {
+      statorCurrent = getStatorCurrent(-velRadPerSec, -volts);
+    }
+    Telemetry.addDashboardData(motor.name + "/Stator Current", statorCurrent);
+    Telemetry.addDashboardData(
+        motor.name + "/Supply Current", statorCurrent * Math.min(1.0, BaseOpMode.busVoltage / 12));
+
     motor.setVoltage(volts);
   }
 
   private double getVoltageLimit(double velRadPerSec) {
     double statorLimit =
-        Math.min(
-            statorCurrentLimitAmps,
-            (-(motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                        * (velRadPerSec / motorModel.freeSpeedRadPerSec)
-                    + Math.sqrt(
-                        Math.pow(
-                                (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
-                                    * (velRadPerSec / motorModel.freeSpeedRadPerSec),
-                                2)
-                            + 4
-                                * (BaseOpMode.busVoltage / 12)
-                                * motorModel.stallCurrentAmps
-                                * supplyCurrentLimitAmps))
-                / 2);
+        Math.min(statorCurrentLimitAmps, getStatorCurrent(velRadPerSec, BaseOpMode.busVoltage));
     return motorModel.getVoltage(motorModel.getTorque(statorLimit), velRadPerSec);
+  }
+
+  private double getStatorCurrent(double velRadPerSec, double statorVoltage) {
+    return (-(motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
+                * (velRadPerSec / motorModel.freeSpeedRadPerSec)
+            + Math.sqrt(
+                Math.pow(
+                        (motorModel.stallCurrentAmps - motorModel.freeCurrentAmps)
+                            * (velRadPerSec / motorModel.freeSpeedRadPerSec),
+                        2)
+                    + 4
+                        * (statorVoltage / 12)
+                        * motorModel.stallCurrentAmps
+                        * supplyCurrentLimitAmps))
+        / 2;
   }
 
   public void setInverted(boolean inverted) {

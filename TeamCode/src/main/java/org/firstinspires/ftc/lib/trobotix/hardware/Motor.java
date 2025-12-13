@@ -11,7 +11,7 @@ import org.firstinspires.ftc.lib.wpilib.math.MathUtil;
 
 public class Motor {
   private final DcMotorEx internalMotor;
-  private final String name;
+  public final String name;
 
   public Motor(String name) {
     internalMotor = (DcMotorEx) BaseOpMode.hardwareMap.dcMotor.get(name);
