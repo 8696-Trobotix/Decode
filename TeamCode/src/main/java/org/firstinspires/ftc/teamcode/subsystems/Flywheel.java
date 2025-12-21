@@ -18,7 +18,7 @@ public class Flywheel extends SubsystemBase {
           new Encoder("Motor5", Encoder.CountsPerRevolution.GOBILDA_6000RPM),
           DCMotor.GOBILDA_5203_6000RPM(1),
           8,
-          4);
+          5);
 
   @Override
   public void periodic() {
@@ -34,7 +34,7 @@ public class Flywheel extends SubsystemBase {
     return run(() -> {
           double targetRPM = 3200;
           var feedforward = targetRPM * (10.0 / 4000);
-          var feedback = (30.0 / 100) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
+          var feedback = (.6) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
           Telemetry.addDSData("Flywheel/Commanded Voltage", feedforward + feedback);
           motor.setVoltage(feedforward + feedback);
         })
