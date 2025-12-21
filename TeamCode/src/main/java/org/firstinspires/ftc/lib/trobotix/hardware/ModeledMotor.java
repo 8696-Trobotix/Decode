@@ -39,13 +39,14 @@ public class ModeledMotor {
 
     double statorCurrent;
     if (volts >= 0) {
-      statorCurrent = getStatorCurrent(velRadPerSec, volts);
+      statorCurrent = motorModel.getCurrent(velRadPerSec, volts);
     } else {
-      statorCurrent = getStatorCurrent(-velRadPerSec, -volts);
+      statorCurrent = motorModel.getCurrent(-velRadPerSec, -volts);
     }
     Telemetry.addDashboardData(motor.name + "/Stator Current", statorCurrent);
     Telemetry.addDashboardData(
-        motor.name + "/Supply Current", statorCurrent * Math.min(1.0, BaseOpMode.busVoltage / 12));
+        motor.name + "/Supply Current",
+        statorCurrent * Math.min(Math.abs(volts), 12) / BaseOpMode.busVoltage);
 
     motor.setVoltage(volts);
   }
