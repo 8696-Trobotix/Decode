@@ -934,8 +934,8 @@ public class Pinpoint {
      * @param translation The new robot translation.
      */
     public void setTranslation(Translation2d translation) {
-      writeByteArray(Register.X_POSITION, (floatToByteArray((float) (translation.getX() / 1000))));
-      writeByteArray(Register.Y_POSITION, (floatToByteArray((float) (translation.getY() / 1000))));
+      writeByteArray(Register.X_POSITION, (floatToByteArray((float) (translation.getX() * 1000))));
+      writeByteArray(Register.Y_POSITION, (floatToByteArray((float) (translation.getY() * 1000))));
     }
 
     /**
