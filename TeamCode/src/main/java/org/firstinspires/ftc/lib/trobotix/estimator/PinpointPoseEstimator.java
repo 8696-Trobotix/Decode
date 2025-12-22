@@ -105,7 +105,7 @@ public class PinpointPoseEstimator {
     m_odometry.resetPose(pose);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPose(true);
+    m_poseEstimate = m_odometry.getFreshPose();
   }
 
   /**
@@ -117,7 +117,7 @@ public class PinpointPoseEstimator {
     m_odometry.resetTranslation(translation);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPose(true);
+    m_poseEstimate = m_odometry.getFreshPose();
   }
 
   /**
@@ -129,7 +129,7 @@ public class PinpointPoseEstimator {
     m_odometry.resetRotation(rotation);
     m_odometryPoseBuffer.clear();
     m_visionUpdates.clear();
-    m_poseEstimate = m_odometry.getPose(true);
+    m_poseEstimate = m_odometry.getFreshPose();
   }
 
   /**
@@ -258,7 +258,7 @@ public class PinpointPoseEstimator {
 
     // Step 9: Update latest pose estimate. Since we cleared all updates after this vision update,
     // it's guaranteed to be the latest vision update.
-    m_poseEstimate = visionUpdate.compensate(m_odometry.getPose(false));
+    m_poseEstimate = visionUpdate.compensate(m_odometry.getCachedPose());
   }
 
   /**
@@ -308,7 +308,7 @@ public class PinpointPoseEstimator {
    * @return The estimated pose of the robot in meters.
    */
   public Pose2d updateWithTime(double currentTimeSeconds) {
-    var odometryEstimate = m_odometry.getPose(true);
+    var odometryEstimate = m_odometry.getFreshPose();
 
     m_odometryPoseBuffer.addSample(currentTimeSeconds, odometryEstimate);
 

@@ -5,9 +5,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp
 public class Drive extends BaseOpMode {
@@ -17,12 +15,10 @@ public class Drive extends BaseOpMode {
         .whileTrue(
             Robot.getInstance()
                 .drivetrain
-                .drive(
-                    () ->
-                        new ChassisSpeeds(
-                            -primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
-                            -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
-                            -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
+                .teleopDrive(
+                    () -> -primaryController.getLeftY(),
+                    () -> -primaryController.getLeftX(),
+                    () -> -primaryController.getRightX()));
     primaryController.a().onTrue(Robot.getInstance().drivetrain.resetGyro());
   }
 }

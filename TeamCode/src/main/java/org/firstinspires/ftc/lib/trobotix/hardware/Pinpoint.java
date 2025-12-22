@@ -51,11 +51,13 @@ public class Pinpoint {
 
   private Pose2d cachedPose = new Pose2d();
 
-  public Pose2d getPose(boolean update) {
-    if (update) {
-      pinpoint.update();
-      cachedPose = pinpoint.getPose();
-    }
+  public Pose2d getCachedPose() {
+    return cachedPose;
+  }
+
+  public Pose2d getFreshPose() {
+    pinpoint.update();
+    cachedPose = pinpoint.getPose();
     return cachedPose;
   }
 

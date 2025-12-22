@@ -7,25 +7,22 @@ import static org.firstinspires.ftc.lib.wpilib.command.Commands.parallel;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 @TeleOp
 public class DriveAndShoot extends BaseOpMode {
   @Override
   protected void initialize() {
-    enabled()
-        .whileTrue(
-            Robot.getInstance()
-                .drivetrain
-                .drive(
-                    () ->
-                        new ChassisSpeeds(
-                            -primaryController.getLeftY() * Drivetrain.maxSpeedMetersPerSec,
-                            -primaryController.getLeftX() * Drivetrain.maxSpeedMetersPerSec,
-                            -primaryController.getRightX() * Drivetrain.maxAngularSpeedRadPerSec)));
-    primaryController.a().onTrue(Robot.getInstance().drivetrain.resetGyro());
+    var drivetrain = Robot.getInstance().drivetrain;
+    drivetrain.setDefaultCommand(
+        drivetrain.teleopDrive(
+            () -> -primaryController.getLeftY(),
+            () -> -primaryController.getLeftX(),
+            () -> -primaryController.getRightX()));
+    primaryController.a().onTrue(drivetrain.resetGyro());
+    primaryController
+        .leftTrigger()
+        .whileTrue(drivetrain.aimAtGoal(() -> -primaryController.getLeftX()));
     primaryController
         .rightTrigger()
         .whileTrue(
