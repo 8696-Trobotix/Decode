@@ -1,7 +1,7 @@
 // Copyright (c) 2025-2026 FTC 8696
 // All rights reserved.
 
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.parallel;
 

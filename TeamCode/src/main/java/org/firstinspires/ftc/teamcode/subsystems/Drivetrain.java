@@ -12,7 +12,6 @@ import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.Commands;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
-import org.firstinspires.ftc.lib.wpilib.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
@@ -24,10 +23,6 @@ import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 public class Drivetrain extends SubsystemBase {
   private final Motor frontLeft, frontRight, backLeft, backRight;
-  private final SlewRateLimiter frontLeftLimiter,
-      frontRightLimiter,
-      backLeftLimiter,
-      backRightLimiter;
 
   private final PIDController xPid;
   private final PIDController yPid;
@@ -40,7 +35,7 @@ public class Drivetrain extends SubsystemBase {
     backLeft = new Motor("Motor1");
     backRight = new Motor("Motor0");
 
-    pinpoint = new Pinpoint("odo", 0.004, -0.004, false, false);
+    pinpoint = new Pinpoint("odo", 0.004, -0.004, true, false);
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
@@ -49,16 +44,10 @@ public class Drivetrain extends SubsystemBase {
     backLeft.setBrake(true);
     backRight.setBrake(true);
 
-    var timeToMaxSpeedSec = .125;
-    frontLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
-    frontRightLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
-    backLeftLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
-    backRightLimiter = new SlewRateLimiter(maxSpeedMetersPerSec / timeToMaxSpeedSec);
-
-    xPid = new PIDController(5, 0, 0);
-    yPid = new PIDController(5, 0, 0);
-    yawPid = new PIDController(5, 0, 0);
-    distancePid = new PIDController(5, 0, 0);
+    xPid = new PIDController(5, 0, 0.5);
+    yPid = new PIDController(5, 0, 0.5);
+    yawPid = new PIDController(4, 0, 0.1);
+    distancePid = new PIDController(5, 0, 0.5);
     xPid.setTolerance(.1, .5);
     yPid.setTolerance(.1, .5);
     distancePid.setTolerance(.1, .5);
@@ -89,17 +78,17 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Telemetry.addDashboardData("Pinpoint pose", pinpoint.getFreshPose());
+    Telemetry.addDashboardData("Drivetrain/Pinpoint pose", pinpoint.getFreshPose());
   }
 
   private boolean onRed = false;
 
-  public Command setOnBlue() {
-    return Commands.runOnce(() -> onRed = false);
+  public void setOnBlue() {
+    onRed = false;
   }
 
-  public Command setOnRed() {
-    return Commands.runOnce(() -> onRed = true);
+  public void setOnRed() {
+    onRed = true;
   }
 
   public Command teleopDrive(
@@ -130,55 +119,7 @@ public class Drivetrain extends SubsystemBase {
                       currentPose.getRotation().getRadians(),
                       targetPose.getRotation().getRadians()));
             })
-        .until(
-            () -> {
-              var delta = pinpoint.getCachedPose().minus(targetPose);
-              return delta.getTranslation().getNorm() < .05
-                  && Math.abs(delta.getRotation().getDegrees()) < 5;
-            });
-  }
-
-  private final PIDController distancePid;
-  private final double targetDistanceMeters = .5;
-
-  public Command aimAtGoal(DoubleSupplier strafeInput) {
-    var redGoal = new Translation2d(0, 0);
-    var blueGoal = new Translation2d(Units.feetToMeters(12) - redGoal.getX(), redGoal.getY());
-    return fieldRelativeDrive(
-        () -> {
-          var goal = onRed ? redGoal : blueGoal;
-          var currentPose = pinpoint.getCachedPose();
-          var currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
-          var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();
-          var distanceControl =
-              distancePid.calculate(currentPoseToGoalDelta.getNorm(), targetDistanceMeters);
-          var strafeControl = strafeInput.getAsDouble() * maxSpeedMetersPerSec / 2;
-          var strafeDirection = currentPoseToGoalAngle.plus(Rotation2d.kCCW_90deg);
-          return new ChassisSpeeds(
-              distanceControl * currentPoseToGoalAngle.getCos()
-                  + strafeControl * strafeDirection.getCos(),
-              distanceControl * currentPoseToGoalAngle.getSin()
-                  + strafeControl * strafeDirection.getSin(),
-              yawPid.calculate(
-                      currentPose.getRotation().getRadians(), currentPoseToGoalAngle.getRadians())
-                  - strafeControl / currentPoseToGoalDelta.getNorm());
-        });
-  }
-
-  public boolean atTargetDistance() {
-    return distancePid.atSetpoint() && yawPid.atSetpoint();
-  }
-
-  public Command robotRelativeDrive(Supplier<ChassisSpeeds> speeds) {
-    return run(() -> {
-          var wheelSpeeds = kinematics.toWheelSpeeds(speeds.get());
-          wheelSpeeds.desaturate(maxSpeedMetersPerSec);
-
-          frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);
-          frontRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond);
-          backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
-          backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
-        })
+        .until(() -> xPid.atSetpoint() && yPid.atSetpoint() && yawPid.atSetpoint())
         .finallyDo(
             () -> {
               frontLeft.setVoltage(0);
@@ -188,8 +129,59 @@ public class Drivetrain extends SubsystemBase {
             });
   }
 
-  public Command setPose(Pose2d pose) {
-    return Commands.runOnce(() -> pinpoint.resetPose(pose));
+  private final PIDController distancePid;
+  private final double targetDistanceMeters = 1.75;
+
+  public Command aimAtGoal(DoubleSupplier strafeInput) {
+    var redGoal = new Translation2d(0, 0);
+    var blueGoal = new Translation2d(Units.feetToMeters(12) - redGoal.getX(), redGoal.getY());
+    return fieldRelativeDrive(
+        () -> {
+          var goal = onRed ? redGoal : blueGoal;
+          Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", goal);
+          var currentPose = pinpoint.getCachedPose();
+          var currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
+          var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();
+          var distanceControl =
+              -distancePid.calculate(currentPoseToGoalDelta.getNorm(), targetDistanceMeters);
+          Telemetry.addDashboardData(
+              "Drivetrain/AutoAim/distance", currentPoseToGoalDelta.getNorm());
+          Telemetry.addDashboardData("Drivetrain/AutoAim/distanceControl", distanceControl);
+          var strafeControl =
+              new Translation2d(
+                      0,
+                      strafeInput.getAsDouble()
+                          * maxSpeedMetersPerSec
+                          / (2 * currentPoseToGoalDelta.getNorm()))
+                  .rotateBy(currentPoseToGoalAngle);
+          return new ChassisSpeeds(
+              distanceControl * currentPoseToGoalAngle.getCos() + strafeControl.getX(),
+              distanceControl * currentPoseToGoalAngle.getSin() + strafeControl.getY(),
+              yawPid.calculate(
+                      currentPose.getRotation().getRadians(), currentPoseToGoalAngle.getRadians())
+                  - strafeControl.getNorm() / currentPoseToGoalDelta.getNorm());
+        });
+  }
+
+  public boolean atTargetDistance() {
+    return distancePid.atSetpoint() && yawPid.atSetpoint();
+  }
+
+  public Command robotRelativeDrive(Supplier<ChassisSpeeds> speeds) {
+    return run(
+        () -> {
+          var wheelSpeeds = kinematics.toWheelSpeeds(speeds.get());
+          wheelSpeeds.desaturate(maxSpeedMetersPerSec);
+
+          frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);
+          frontRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond);
+          backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
+          backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
+        });
+  }
+
+  public void setPose(Pose2d pose) {
+    pinpoint.resetPose(pose);
   }
 
   public Command resetGyro() {
