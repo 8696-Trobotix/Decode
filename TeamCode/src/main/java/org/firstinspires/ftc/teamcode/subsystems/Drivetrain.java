@@ -41,7 +41,6 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController yawPid;
   private final PinpointPoseEstimator poseEstimator;
   private final AprilTagProcessor tagProcessor;
-  private final VisionPortal portal;
 
   public Drivetrain() {
     frontLeft = new Motor("Motor3");
@@ -70,13 +69,13 @@ public class Drivetrain extends SubsystemBase {
                 399.5)
             .build();
     tagProcessor.setDecimation(3);
-    portal =
-        new VisionPortal.Builder()
-            .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
-            .setCameraResolution(new Size(1280, 800))
-            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-            .addProcessor(tagProcessor).enableLiveView(false)
-            .build();
+    new VisionPortal.Builder()
+        .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
+        .setCameraResolution(new Size(1280, 800))
+        .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+        .addProcessor(tagProcessor)
+        .enableLiveView(false)
+        .build();
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
