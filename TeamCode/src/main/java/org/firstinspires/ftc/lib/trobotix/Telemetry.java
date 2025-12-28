@@ -131,6 +131,11 @@ public final class Telemetry {
       dashboardTelemetryPacket.put(path + "/vx", chassisSpeeds.vxMetersPerSecond);
       dashboardTelemetryPacket.put(path + "/vy", chassisSpeeds.vyMetersPerSecond);
       dashboardTelemetryPacket.put(path + "/omega", chassisSpeeds.omegaRadiansPerSecond);
+    } else if (data instanceof int[] intArray) {
+      dashboardTelemetryPacket.put(path + "/length", intArray.length);
+      for (int i = 0; i < intArray.length; i++) {
+        dashboardTelemetryPacket.put(path + "/" + i, intArray[i]);
+      }
     } else {
       dashboardTelemetryPacket.put(path, data);
     }

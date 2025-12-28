@@ -16,7 +16,6 @@ import org.firstinspires.ftc.lib.wpilib.command.button.CommandXboxController;
 import org.firstinspires.ftc.lib.wpilib.command.button.Trigger;
 import org.firstinspires.ftc.lib.wpilib.wpilibj.Timer;
 import org.firstinspires.ftc.teamcode.BuildConstants;
-import org.firstinspires.ftc.teamcode.Robot;
 
 @Photon
 public abstract class BaseOpMode extends LinearOpMode {
@@ -40,7 +39,6 @@ public abstract class BaseOpMode extends LinearOpMode {
     Telemetry.setTelemetry(telemetry);
     Telemetry.initTelemetry();
 
-    Robot.init();
     initialize();
 
     for (var hook : resetHooks) {

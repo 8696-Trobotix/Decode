@@ -3,23 +3,35 @@
 
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.util.Size;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
+import org.firstinspires.ftc.lib.trobotix.CoordinateSystems;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
+import org.firstinspires.ftc.lib.trobotix.estimator.PinpointPoseEstimator;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Pinpoint;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.Commands;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveKinematics;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.MecanumDriveWheelSpeeds;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 public class Drivetrain extends SubsystemBase {
   private final Motor frontLeft, frontRight, backLeft, backRight;
@@ -27,7 +39,9 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController xPid;
   private final PIDController yPid;
   private final PIDController yawPid;
-  private final Pinpoint pinpoint;
+  private final PinpointPoseEstimator poseEstimator;
+  private final AprilTagProcessor tagProcessor;
+  private final VisionPortal portal;
 
   public Drivetrain() {
     frontLeft = new Motor("Motor3");
@@ -35,7 +49,34 @@ public class Drivetrain extends SubsystemBase {
     backLeft = new Motor("Motor1");
     backRight = new Motor("Motor0");
 
-    pinpoint = new Pinpoint("odo", 0.004, -0.004, true, false);
+    poseEstimator =
+        new PinpointPoseEstimator(
+            new Pinpoint("odo", 0.004, -0.004, true, false),
+            VecBuilder.fill(.1, .1, .1),
+            VecBuilder.fill(.9, .9, .9));
+    var cameraPose = Transform3d.kZero;
+    tagProcessor =
+        new AprilTagProcessor.Builder()
+            .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
+            .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
+            .setCameraPose(
+                CoordinateSystems.WPILibToFieldCoordinates(cameraPose.getTranslation()),
+                CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
+            .setLensIntrinsics(
+                // TODO: Measure actual values
+                639.5 / Math.tan(Units.degreesToRadians(35)),
+                639.5 / Math.tan(Units.degreesToRadians(35)),
+                639.5,
+                399.5)
+            .build();
+    tagProcessor.setDecimation(3);
+    portal =
+        new VisionPortal.Builder()
+            .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
+            .setCameraResolution(new Size(1280, 800))
+            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+            .addProcessor(tagProcessor).enableLiveView(false)
+            .build();
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
@@ -76,9 +117,37 @@ public class Drivetrain extends SubsystemBase {
           .omegaRadiansPerSecond;
   private final double kV_voltsPerMetersPerSec = 12 / maxSpeedMetersPerSec;
 
+  private enum Motif {
+    GPP,
+    PGP,
+    PPG
+  }
+
+  private Motif motif;
+
   @Override
   public void periodic() {
-    Telemetry.addDashboardData("Drivetrain/Pinpoint pose", pinpoint.getFreshPose());
+    poseEstimator.update();
+    var tags = tagProcessor.getDetections();
+    for (int i = 0; i < tags.size(); i++) {
+      var tag = tags.get(i);
+      switch (tag.id) {
+        case 21 -> motif = Motif.GPP;
+        case 22 -> motif = Motif.PGP;
+        case 23 -> motif = Motif.PPG;
+        default -> {
+          if (tag.robotPose != null) {
+            var robotPose = CoordinateSystems.fieldPoseToWPILib(tag.robotPose);
+            poseEstimator.addVisionMeasurement(
+                robotPose.toPose2d(), tag.frameAcquisitionNanoTime / 1e9);
+            Telemetry.addDashboardData("AprilTags/detections/" + i + "/robotPose", robotPose);
+          }
+        }
+      }
+      Telemetry.addDashboardData("AprilTags/detections/" + i + "/id", tag.id);
+    }
+    Telemetry.addDashboardData("Drivetrain/Pinpoint pose", poseEstimator.getEstimatedPosition());
+    Telemetry.addDSData("Detected Motif", motif == null ? "None" : motif.name());
   }
 
   private boolean onRed = false;
@@ -105,13 +174,13 @@ public class Drivetrain extends SubsystemBase {
     return robotRelativeDrive(
         () ->
             ChassisSpeeds.fromFieldRelativeSpeeds(
-                speeds.get(), pinpoint.getCachedPose().getRotation()));
+                speeds.get(), poseEstimator.getEstimatedPosition().getRotation()));
   }
 
   public Command driveToPose(Pose2d targetPose) {
     return fieldRelativeDrive(
             () -> {
-              var currentPose = pinpoint.getCachedPose();
+              var currentPose = poseEstimator.getEstimatedPosition();
               return new ChassisSpeeds(
                   xPid.calculate(currentPose.getX(), targetPose.getX()),
                   yPid.calculate(currentPose.getY(), targetPose.getY()),
@@ -139,7 +208,7 @@ public class Drivetrain extends SubsystemBase {
         () -> {
           var goal = onRed ? redGoal : blueGoal;
           Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", goal);
-          var currentPose = pinpoint.getCachedPose();
+          var currentPose = poseEstimator.getEstimatedPosition();
           var currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();
           var distanceControl =
@@ -181,7 +250,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void setPose(Pose2d pose) {
-    pinpoint.resetPose(pose);
+    poseEstimator.resetPose(pose);
   }
 
   public Command resetGyro() {
@@ -189,6 +258,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public Command setGyro(Rotation2d newYaw) {
-    return Commands.runOnce(() -> pinpoint.resetRotation(newYaw));
+    return Commands.runOnce(() -> poseEstimator.resetRotation(newYaw));
   }
 }

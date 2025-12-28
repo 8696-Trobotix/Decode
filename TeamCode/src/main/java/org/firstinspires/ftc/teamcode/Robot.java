@@ -10,14 +10,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 public class Robot {
   private static Robot instance = null;
 
-  public static void init() {
+  public static Robot getInstance() {
     if (instance == null) {
       instance = new Robot();
     }
-  }
-
-  public static Robot getInstance() {
-    init();
     return instance;
   }
 
