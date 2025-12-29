@@ -80,7 +80,7 @@ public class Drivetrain extends SubsystemBase {
         .setCameraResolution(new Size(1280, 800))
         .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
         .addProcessor(tagProcessor)
-        .enableLiveView(true)
+        .enableLiveView(false)
         .build();
 
     frontRight.setInverted(true);
