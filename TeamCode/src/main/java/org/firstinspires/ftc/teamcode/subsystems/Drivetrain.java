@@ -18,7 +18,9 @@ import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
 import org.firstinspires.ftc.lib.wpilib.math.VecBuilder;
 import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Transform3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.kinematics.ChassisSpeeds;
@@ -59,22 +61,26 @@ public class Drivetrain extends SubsystemBase {
             .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
             .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
             .setCameraPose(
-                CoordinateSystems.WPILibToFieldCoordinates(cameraPose.getTranslation()),
-                CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
+                CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
+                CoordinateSystems.WPILibToSDKRotation(
+                    cameraPose.getRotation().plus(new Rotation3d(0, Math.PI / 2, 0))))
             .setLensIntrinsics(
                 // TODO: Measure actual values
                 639.5 / Math.tan(Units.degreesToRadians(35)),
                 639.5 / Math.tan(Units.degreesToRadians(35)),
                 639.5,
                 399.5)
+            .setDrawCubeProjection(true)
+            .setDrawAxes(true)
+            .setDrawTagOutline(true)
             .build();
-    tagProcessor.setDecimation(3);
+    tagProcessor.setDecimation(2);
     new VisionPortal.Builder()
         .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
         .setCameraResolution(new Size(1280, 800))
         .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
         .addProcessor(tagProcessor)
-        .enableLiveView(false)
+        .enableLiveView(true)
         .build();
 
     frontRight.setInverted(true);
@@ -147,6 +153,7 @@ public class Drivetrain extends SubsystemBase {
     }
     Telemetry.addDashboardData("Drivetrain/Pinpoint pose", poseEstimator.getEstimatedPosition());
     Telemetry.addDSData("Detected Motif", motif == null ? "None" : motif.name());
+    Telemetry.addDashboardData("ZeroPose", Pose3d.kZero);
   }
 
   private boolean onRed = false;

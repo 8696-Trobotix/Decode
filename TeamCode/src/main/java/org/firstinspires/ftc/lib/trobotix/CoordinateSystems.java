@@ -4,7 +4,6 @@
 package org.firstinspires.ftc.lib.trobotix;
 
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose3d;
-import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation3d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation3d;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
@@ -17,11 +16,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 public final class CoordinateSystems {
   private CoordinateSystems() {}
 
-  private static final Translation3d FIELD_CENTER =
-      new Translation3d(Units.feetToMeters(6), Units.feetToMeters(6), 0);
-  private static final Rotation3d CCW_90_DEG = new Rotation3d(Rotation2d.kCCW_90deg);
-  private static final Rotation3d CW_90_DEG = new Rotation3d(Rotation2d.kCW_90deg);
-
   /**
    * WPILib's field coordinate system has the origin in the blue right corner of the field, with +X
    * away from blue driver station, but the FTC SDK field coordinate system has the origin in the
@@ -31,21 +25,15 @@ public final class CoordinateSystems {
    * @return A {@link Position} transformed to be in the FTC SDK Field Coordinate System in meters.
    */
   public static Position WPILibToFieldCoordinates(Translation3d translation3d) {
-    var transformedTranslation =
-        translation3d.plus(FIELD_CENTER).rotateAround(FIELD_CENTER, CCW_90_DEG);
     return new Position(
         DistanceUnit.METER,
-        transformedTranslation.getX(),
-        transformedTranslation.getY(),
-        transformedTranslation.getZ(),
+        translation3d.getY() - Units.feetToMeters(6),
+        Units.feetToMeters(6) - translation3d.getX(),
+        translation3d.getZ(),
         0);
   }
 
   /**
-   * WPILib's field coordinate system has the origin in the blue right corner of the field, with +X
-   * away from blue driver station, but the FTC SDK field coordinate system has the origin in the
-   * center, with +X towards the audience.
-   *
    * @param position A {@link Position} in the FTC SDK Field Coordinate System.
    * @return A {@link Translation3d} transformed to be in the WPILib coordinate system.
    */
@@ -76,7 +64,8 @@ public final class CoordinateSystems {
       }
       default -> throw new IllegalArgumentException("Position unit was null!");
     }
-    return new Translation3d(xMeters, yMeters, zMeters).rotateBy(CW_90_DEG).minus(FIELD_CENTER);
+    return new Translation3d(
+        Units.feetToMeters(6) - yMeters, xMeters + Units.feetToMeters(6), zMeters);
   }
 
   /**
@@ -138,7 +127,7 @@ public final class CoordinateSystems {
    */
   public static YawPitchRollAngles WPILibToSDKRotation(Rotation3d rotation3d) {
     return new YawPitchRollAngles(
-        AngleUnit.RADIANS, rotation3d.getZ(), -rotation3d.getY(), rotation3d.getX(), 0);
+        AngleUnit.RADIANS, rotation3d.getZ(), rotation3d.getY(), -rotation3d.getX(), 0);
   }
 
   /**
@@ -150,8 +139,8 @@ public final class CoordinateSystems {
    */
   public static Rotation3d SDKRotationToWPILib(YawPitchRollAngles yawPitchRollAngles) {
     return new Rotation3d(
-        yawPitchRollAngles.getRoll(AngleUnit.RADIANS),
-        -yawPitchRollAngles.getPitch(AngleUnit.RADIANS),
+        -yawPitchRollAngles.getRoll(AngleUnit.RADIANS),
+        yawPitchRollAngles.getPitch(AngleUnit.RADIANS),
         yawPitchRollAngles.getYaw(AngleUnit.RADIANS));
   }
 
