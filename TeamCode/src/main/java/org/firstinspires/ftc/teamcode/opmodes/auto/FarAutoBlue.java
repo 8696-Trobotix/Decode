@@ -3,18 +3,18 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.Robot.drivetrain;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
-import org.firstinspires.ftc.teamcode.Robot;
 
 @Autonomous
 public class FarAutoBlue extends BaseOpMode {
   @Override
   protected void initialize() {
-    var drivetrain = Robot.getInstance().drivetrain;
     drivetrain.setPose(
         new Pose2d(
             Units.feetToMeters(6) + Units.inchesToMeters(8),

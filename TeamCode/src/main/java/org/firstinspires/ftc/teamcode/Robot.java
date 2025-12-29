@@ -8,20 +8,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 public class Robot {
-  private static Robot instance = null;
+  private Robot() {}
 
-  public static Robot getInstance() {
-    if (instance == null) {
-      instance = new Robot();
-    }
-    return instance;
-  }
+  public static final Drivetrain drivetrain;
+  public static final Flywheel flywheel;
+  public static final Feeder feeder;
 
-  public final Drivetrain drivetrain;
-  public final Flywheel flywheel;
-  public final Feeder feeder;
-
-  private Robot() {
+  static {
     drivetrain = new Drivetrain();
     flywheel = new Flywheel();
     feeder = new Feeder(flywheel::getVelocityRPS);

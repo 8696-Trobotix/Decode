@@ -7,20 +7,18 @@ import static org.firstinspires.ftc.lib.wpilib.command.Commands.parallel;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.sequence;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.waitSeconds;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.waitUntil;
+import static org.firstinspires.ftc.teamcode.Robot.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
-import org.firstinspires.ftc.teamcode.Robot;
 
 @Autonomous
 public class CloseAutoBlue extends BaseOpMode {
   @Override
   protected void initialize() {
-    var drivetrain = Robot.getInstance().drivetrain;
-    var feeder = Robot.getInstance().feeder;
 
     drivetrain.setPose(new Pose2d(Units.feetToMeters(12) - .7, .355, Rotation2d.fromDegrees(-35)));
     drivetrain.setOnBlue();
@@ -31,8 +29,7 @@ public class CloseAutoBlue extends BaseOpMode {
                     feeder.feed(),
                     feeder.feed(),
                     feeder.feed())
-                .deadlineFor(
-                    parallel(drivetrain.aimAtGoal(() -> 0), Robot.getInstance().flywheel.spinUp()))
+                .deadlineFor(parallel(drivetrain.aimAtGoal(() -> 0), flywheel.spinUp()))
                 .andThen(
                     waitSeconds(1),
                     drivetrain.driveToPose(

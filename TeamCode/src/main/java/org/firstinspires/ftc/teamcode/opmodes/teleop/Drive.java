@@ -3,9 +3,10 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.teleop;
 
+import static org.firstinspires.ftc.teamcode.Robot.drivetrain;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
-import org.firstinspires.ftc.teamcode.Robot;
 
 @TeleOp
 public class Drive extends BaseOpMode {
@@ -13,12 +14,10 @@ public class Drive extends BaseOpMode {
   protected void initialize() {
     enabled()
         .whileTrue(
-            Robot.getInstance()
-                .drivetrain
-                .teleopDrive(
-                    () -> -primaryController.getLeftY(),
-                    () -> -primaryController.getLeftX(),
-                    () -> -primaryController.getRightX()));
-    primaryController.a().onTrue(Robot.getInstance().drivetrain.resetGyro());
+            drivetrain.teleopDrive(
+                () -> -primaryController.getLeftY(),
+                () -> -primaryController.getLeftX(),
+                () -> -primaryController.getRightX()));
+    primaryController.a().onTrue(drivetrain.resetGyro());
   }
 }
