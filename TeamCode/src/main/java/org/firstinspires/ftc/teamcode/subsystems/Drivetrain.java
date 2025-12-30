@@ -42,7 +42,8 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController yPid;
   private final PIDController yawPid;
   private final PinpointPoseEstimator poseEstimator;
-  private final AprilTagProcessor tagProcessor;
+  private final AprilTagProcessor.Builder tagBuilder;
+  private AprilTagProcessor tagProcessor;
 
   private final VisionPortal.Builder portalBuilder;
   private VisionPortal portal;
@@ -60,11 +61,11 @@ public class Drivetrain extends SubsystemBase {
             VecBuilder.fill(.9, .9, .9));
     var cameraPose =
         new Transform3d(
-            -0.08,
-            -.09,
-            Units.inchesToMeters(16),
-            new Rotation3d(0, Units.degreesToRadians(45), Math.PI));
-    tagProcessor =
+            0.1,
+            0.12,
+            Units.inchesToMeters(15),
+            new Rotation3d(0, Units.degreesToRadians(22), Math.PI + Units.degreesToRadians(1)));
+    tagBuilder =
         new AprilTagProcessor.Builder()
             .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
             .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
@@ -80,20 +81,24 @@ public class Drivetrain extends SubsystemBase {
                 399.5)
             .setDrawCubeProjection(true)
             .setDrawAxes(true)
-            .setDrawTagOutline(true)
-            .build();
-    tagProcessor.setDecimation(2);
+            .setDrawTagOutline(true);
     portalBuilder =
         new VisionPortal.Builder()
             .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
             .setCameraResolution(new Size(1280, 800))
             .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
             .enableLiveView(true);
-    BaseOpMode.addResetHook(() -> portal = portalBuilder.addProcessor(tagProcessor).build());
+    BaseOpMode.addResetHook(
+        () -> {
+          tagProcessor = tagBuilder.build();
+          tagProcessor.setDecimation(2);
+          portal = portalBuilder.addProcessor(tagProcessor).build();
+        });
     BaseOpMode.addCloseHook(
         () -> {
           portal.close();
           portal = null;
+          tagProcessor = null;
         });
 
     frontRight.setInverted(true);
@@ -157,7 +162,12 @@ public class Drivetrain extends SubsystemBase {
           if (tag.robotPose != null) {
             var robotPose = CoordinateSystems.fieldPoseToWPILib(tag.robotPose);
             poseEstimator.addVisionMeasurement(
-                robotPose.toPose2d(), tag.frameAcquisitionNanoTime / 1e9);
+                robotPose.toPose2d(),
+                tag.frameAcquisitionNanoTime / 1e9,
+                VecBuilder.fill(
+                    tag.ftcPose.y * tag.ftcPose.y * 1,
+                    tag.ftcPose.y * tag.ftcPose.y * 1,
+                    tag.ftcPose.y * tag.ftcPose.y * 1));
             Telemetry.addDashboardData("AprilTags/detections/" + i + "/robotPose", robotPose);
           }
         }
