@@ -75,6 +75,9 @@ public abstract class BaseOpMode extends LinearOpMode {
     CommandScheduler.getInstance().cancelAll();
     CommandScheduler.getInstance().getDefaultButtonLoop().clear();
     CommandScheduler.getInstance().clearComposedCommands();
+    for (var hook : closeHooks) {
+      hook.run();
+    }
     activeOpMode = null;
     BaseOpMode.hardwareMap = null;
   }
@@ -94,6 +97,12 @@ public abstract class BaseOpMode extends LinearOpMode {
 
   public static void addResetHook(Runnable hook) {
     resetHooks.add(hook);
+  }
+
+  private static final ArrayList<Runnable> closeHooks = new ArrayList<>();
+
+  public static void addCloseHook(Runnable hook) {
+    closeHooks.add(hook);
   }
 
   /**

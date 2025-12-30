@@ -44,6 +44,9 @@ public class Drivetrain extends SubsystemBase {
   private final PinpointPoseEstimator poseEstimator;
   private final AprilTagProcessor tagProcessor;
 
+  private final VisionPortal.Builder portalBuilder;
+  private VisionPortal portal;
+
   public Drivetrain() {
     frontLeft = new Motor("Motor3");
     frontRight = new Motor("Motor2");
@@ -55,7 +58,12 @@ public class Drivetrain extends SubsystemBase {
             new Pinpoint("odo", 0.004, -0.004, true, false),
             VecBuilder.fill(.1, .1, .1),
             VecBuilder.fill(.9, .9, .9));
-    var cameraPose = Transform3d.kZero;
+    var cameraPose =
+        new Transform3d(
+            -0.08,
+            -.09,
+            Units.inchesToMeters(16),
+            new Rotation3d(0, Units.degreesToRadians(45), Math.PI));
     tagProcessor =
         new AprilTagProcessor.Builder()
             .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
@@ -75,13 +83,18 @@ public class Drivetrain extends SubsystemBase {
             .setDrawTagOutline(true)
             .build();
     tagProcessor.setDecimation(2);
-    new VisionPortal.Builder()
-        .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
-        .setCameraResolution(new Size(1280, 800))
-        .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-        .addProcessor(tagProcessor)
-        .enableLiveView(false)
-        .build();
+    portalBuilder =
+        new VisionPortal.Builder()
+            .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
+            .setCameraResolution(new Size(1280, 800))
+            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+            .enableLiveView(true);
+    BaseOpMode.addResetHook(() -> portal = portalBuilder.addProcessor(tagProcessor).build());
+    BaseOpMode.addCloseHook(
+        () -> {
+          portal.close();
+          portal = null;
+        });
 
     frontRight.setInverted(true);
     backRight.setInverted(true);
