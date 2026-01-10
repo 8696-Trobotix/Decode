@@ -64,15 +64,17 @@ public class Drivetrain extends SubsystemBase {
             0.1,
             0.12,
             Units.inchesToMeters(15),
-            new Rotation3d(0, Units.degreesToRadians(22), Math.PI + Units.degreesToRadians(1)));
+            new Rotation3d(
+                Units.degreesToRadians(0),
+                Units.degreesToRadians(23) - Units.degreesToRadians(90),
+                Units.degreesToRadians(-90)));
     tagBuilder =
         new AprilTagProcessor.Builder()
             .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
             .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
             .setCameraPose(
                 CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
-                CoordinateSystems.WPILibToSDKRotation(
-                    cameraPose.getRotation().plus(new Rotation3d(0, Math.PI / 2, 0))))
+                CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
             .setLensIntrinsics(
                 // TODO: Measure actual values
                 639.5 / Math.tan(Units.degreesToRadians(35)),
@@ -150,6 +152,7 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Telemetry.addDSData("Camera state", portal.getCameraState().name());
     poseEstimator.update();
     var tags = tagProcessor.getDetections();
     for (int i = 0; i < tags.size(); i++) {
@@ -191,12 +194,16 @@ public class Drivetrain extends SubsystemBase {
 
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
-    return fieldRelativeDrive(
+    return robotRelativeDrive(
         () ->
-            new ChassisSpeeds(
-                xInput.getAsDouble() * maxSpeedMetersPerSec * (onRed ? -1 : 1),
-                yInput.getAsDouble() * maxSpeedMetersPerSec * (onRed ? -1 : 1),
-                omegaInput.getAsDouble() * maxAngularSpeedRadPerSec));
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                xInput.getAsDouble() * maxSpeedMetersPerSec,
+                yInput.getAsDouble() * maxSpeedMetersPerSec,
+                omegaInput.getAsDouble() * maxAngularSpeedRadPerSec,
+                poseEstimator
+                    .getEstimatedPosition()
+                    .getRotation()
+                    .plus(onRed ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
   }
 
   public Command fieldRelativeDrive(Supplier<ChassisSpeeds> speeds) {
@@ -228,15 +235,15 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private final PIDController distancePid;
-  private final double targetDistanceMeters = 1.75;
+  private final double targetDistanceMeters = 1.45;
 
   public Command aimAtGoal(DoubleSupplier strafeInput) {
-    var redGoal = new Translation2d(0, 0);
-    var blueGoal = new Translation2d(Units.feetToMeters(12) - redGoal.getX(), redGoal.getY());
+    var redGoal = new Translation2d(Units.feetToMeters(-5.5), Units.feetToMeters(5.5));
+    var blueGoal = new Translation2d(Units.feetToMeters(-5.5), Units.feetToMeters(-5.5));
     return fieldRelativeDrive(
         () -> {
           var goal = onRed ? redGoal : blueGoal;
-          Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", goal);
+          Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", new Pose2d(goal, Rotation2d.kZero));
           var currentPose = poseEstimator.getEstimatedPosition();
           var currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();

@@ -13,13 +13,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 @Autonomous
 public class CloseAutoRed extends BaseOpMode {
   @Override
   protected void initialize() {
-    drivetrain.setPose(new Pose2d(.7, .355, Rotation2d.fromDegrees(-145)));
-    drivetrain.setOnBlue();
+    drivetrain.setPose(
+        new Pose2d(
+            .355 - Units.feetToMeters(6), Units.feetToMeters(6) - .7, Rotation2d.fromDegrees(126)));
+    drivetrain.setOnRed();
     enabled()
         .onTrue(
             sequence(

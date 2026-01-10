@@ -22,7 +22,7 @@ public class Feeder extends SubsystemBase {
   }
 
   public Command feed() {
-    return waitUntil(() -> flywheelVelRPS.getAsDouble() > 3150 / 60.0)
+    return waitUntil(() -> flywheelVelRPS.getAsDouble() > 3200 / 60.0)
         .andThen(
             startEnd(
                     () -> {
@@ -33,6 +33,6 @@ public class Feeder extends SubsystemBase {
                       left.setPosition(0.5);
                       right.setPosition(0.5);
                     })
-                .until(() -> flywheelVelRPS.getAsDouble() < 2700 / 60.0));
+                .until(() -> flywheelVelRPS.getAsDouble() < 2750 / 60.0));
   }
 }

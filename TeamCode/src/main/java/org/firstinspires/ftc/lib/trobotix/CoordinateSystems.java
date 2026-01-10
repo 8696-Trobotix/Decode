@@ -26,11 +26,7 @@ public final class CoordinateSystems {
    */
   public static Position WPILibToFieldCoordinates(Translation3d translation3d) {
     return new Position(
-        DistanceUnit.METER,
-        translation3d.getY() - Units.feetToMeters(6),
-        Units.feetToMeters(6) - translation3d.getX(),
-        translation3d.getZ(),
-        0);
+        DistanceUnit.METER, translation3d.getX(), translation3d.getY(), translation3d.getZ(), 0);
   }
 
   /**
@@ -64,8 +60,7 @@ public final class CoordinateSystems {
       }
       default -> throw new IllegalArgumentException("Position unit was null!");
     }
-    return new Translation3d(
-        Units.feetToMeters(6) - yMeters, xMeters + Units.feetToMeters(6), zMeters);
+    return new Translation3d(xMeters, yMeters, zMeters);
   }
 
   /**
@@ -118,28 +113,22 @@ public final class CoordinateSystems {
   }
 
   /**
-   * WPILib uses a North-West-Up coordinate system, but the FTC SDK Robot Coordinate System is a
-   * East-North-Up system.
-   *
    * @param rotation3d A {@link Rotation3d} in the WPILib coordinate system.
    * @return {@link YawPitchRollAngles} transformed to be in the FTC SDK Robot Coordinate System, in
    *     radians.
    */
   public static YawPitchRollAngles WPILibToSDKRotation(Rotation3d rotation3d) {
     return new YawPitchRollAngles(
-        AngleUnit.RADIANS, rotation3d.getZ(), rotation3d.getY(), -rotation3d.getX(), 0);
+        AngleUnit.RADIANS, rotation3d.getZ(), rotation3d.getY(), rotation3d.getX(), 0);
   }
 
   /**
-   * WPILib uses a North-West-Up coordinate system, but the FTC SDK Robot Coordinate System is a
-   * East-North-Up system.
-   *
    * @param yawPitchRollAngles {@link YawPitchRollAngles} in the FTC SDK Robot Coordinate System.
    * @return {@link YawPitchRollAngles} transformed to be in the WPILib coordinate system.
    */
   public static Rotation3d SDKRotationToWPILib(YawPitchRollAngles yawPitchRollAngles) {
     return new Rotation3d(
-        -yawPitchRollAngles.getRoll(AngleUnit.RADIANS),
+        yawPitchRollAngles.getRoll(AngleUnit.RADIANS),
         yawPitchRollAngles.getPitch(AngleUnit.RADIANS),
         yawPitchRollAngles.getYaw(AngleUnit.RADIANS));
   }

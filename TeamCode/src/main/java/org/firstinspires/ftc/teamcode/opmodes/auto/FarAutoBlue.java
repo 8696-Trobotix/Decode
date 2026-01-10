@@ -17,16 +17,14 @@ public class FarAutoBlue extends BaseOpMode {
   protected void initialize() {
     drivetrain.setPose(
         new Pose2d(
-            Units.feetToMeters(6) + Units.inchesToMeters(8),
-            Units.feetToMeters(12) - Units.inchesToMeters(9),
-            Rotation2d.fromDegrees(0)));
+            Units.feetToMeters(6) - Units.inchesToMeters(9),
+            -Units.inchesToMeters(8),
+            Rotation2d.fromDegrees(-90)));
     drivetrain.setOnBlue();
     enabled()
         .onTrue(
             drivetrain.driveToPose(
                 new Pose2d(
-                    Units.feetToMeters(6) + Units.inchesToMeters(8),
-                    Units.feetToMeters(9),
-                    Rotation2d.fromDegrees(0))));
+                    Units.feetToMeters(3), -Units.inchesToMeters(8), Rotation2d.fromDegrees(180))));
   }
 }

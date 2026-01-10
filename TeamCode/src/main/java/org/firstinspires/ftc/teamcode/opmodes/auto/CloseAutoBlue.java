@@ -19,8 +19,11 @@ import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 public class CloseAutoBlue extends BaseOpMode {
   @Override
   protected void initialize() {
-
-    drivetrain.setPose(new Pose2d(Units.feetToMeters(12) - .7, .355, Rotation2d.fromDegrees(-35)));
+    drivetrain.setPose(
+        new Pose2d(
+            .355 - Units.feetToMeters(6),
+            .7 - Units.feetToMeters(6),
+            Rotation2d.fromDegrees(-126)));
     drivetrain.setOnBlue();
     enabled()
         .onTrue(
