@@ -42,10 +42,8 @@ public class Drivetrain extends SubsystemBase {
   private final PIDController yPid;
   private final PIDController yawPid;
   private final PinpointPoseEstimator poseEstimator;
-  private final AprilTagProcessor.Builder tagBuilder;
   private AprilTagProcessor tagProcessor;
 
-  private final VisionPortal.Builder portalBuilder;
   private VisionPortal portal;
 
   public Drivetrain() {
@@ -68,33 +66,34 @@ public class Drivetrain extends SubsystemBase {
                 Units.degreesToRadians(0),
                 Units.degreesToRadians(23) - Units.degreesToRadians(90),
                 Units.degreesToRadians(-90)));
-    tagBuilder =
-        new AprilTagProcessor.Builder()
-            .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
-            .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
-            .setCameraPose(
-                CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
-                CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
-            .setLensIntrinsics(
-                // TODO: Measure actual values
-                639.5 / Math.tan(Units.degreesToRadians(35)),
-                639.5 / Math.tan(Units.degreesToRadians(35)),
-                639.5,
-                399.5)
-            .setDrawCubeProjection(true)
-            .setDrawAxes(true)
-            .setDrawTagOutline(true);
-    portalBuilder =
-        new VisionPortal.Builder()
-            .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
-            .setCameraResolution(new Size(1280, 800))
-            .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
-            .enableLiveView(true);
     BaseOpMode.addResetHook(
         () -> {
-          tagProcessor = tagBuilder.build();
-          tagProcessor.setDecimation(2);
-          portal = portalBuilder.addProcessor(tagProcessor).build();
+          tagProcessor =
+              new AprilTagProcessor.Builder()
+                  .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
+                  .setOutputUnits(DistanceUnit.METER, AngleUnit.RADIANS)
+                  .setCameraPose(
+                      CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
+                      CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
+                  .setLensIntrinsics(
+                      // TODO: Measure actual values
+                      639.5 / Math.tan(Units.degreesToRadians(35)),
+                      639.5 / Math.tan(Units.degreesToRadians(35)),
+                      639.5,
+                      399.5)
+                  .setDrawCubeProjection(true)
+                  .setDrawAxes(true)
+                  .setDrawTagOutline(true)
+                  .build();
+          tagProcessor.setDecimation(4);
+          portal =
+              new VisionPortal.Builder()
+                  .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
+                  .setCameraResolution(new Size(1280, 800))
+                  .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                  .enableLiveView(true)
+                  .addProcessor(tagProcessor)
+                  .build();
         });
     BaseOpMode.addCloseHook(
         () -> {
@@ -162,15 +161,15 @@ public class Drivetrain extends SubsystemBase {
         case 22 -> motif = Motif.PGP;
         case 23 -> motif = Motif.PPG;
         default -> {
-          if (tag.robotPose != null) {
+          if (tag.robotPose != null && Math.abs(tag.robotPose.getPosition().z) < .15) {
             var robotPose = CoordinateSystems.fieldPoseToWPILib(tag.robotPose);
             poseEstimator.addVisionMeasurement(
                 robotPose.toPose2d(),
                 tag.frameAcquisitionNanoTime / 1e9,
                 VecBuilder.fill(
-                    tag.ftcPose.y * tag.ftcPose.y * 1,
-                    tag.ftcPose.y * tag.ftcPose.y * 1,
-                    tag.ftcPose.y * tag.ftcPose.y * 1));
+                    tag.ftcPose.y * tag.ftcPose.y * 1.5,
+                    tag.ftcPose.y * tag.ftcPose.y * 1.5,
+                    tag.ftcPose.y * tag.ftcPose.y * 1.5));
             Telemetry.addDashboardData("AprilTags/detections/" + i + "/robotPose", robotPose);
           }
         }
@@ -265,7 +264,7 @@ public class Drivetrain extends SubsystemBase {
                       0,
                       strafeInput.getAsDouble()
                           * maxSpeedMetersPerSec
-                          / (2 * currentPoseToGoalDelta.getNorm()))
+                          / (Math.PI * currentPoseToGoalDelta.getNorm()))
                   .rotateBy(currentPoseToGoalAngle);
           return new ChassisSpeeds(
               distanceControl * currentPoseToGoalAngle.getCos() + strafeControl.getX(),

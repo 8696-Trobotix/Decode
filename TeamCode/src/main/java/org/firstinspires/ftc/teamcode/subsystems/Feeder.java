@@ -35,4 +35,16 @@ public class Feeder extends SubsystemBase {
                     })
                 .until(() -> flywheelVelRPS.getAsDouble() < (Flywheel.targetRPM - 500) / 60.0));
   }
+
+  public Command unfeed() {
+    return startEnd(
+        () -> {
+          left.setPosition(0);
+          right.setPosition(1);
+        },
+        () -> {
+          left.setPosition(0.5);
+          right.setPosition(0.5);
+        });
+  }
 }

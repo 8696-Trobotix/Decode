@@ -25,5 +25,6 @@ public class DriveAndShoot extends BaseOpMode {
     primaryController
         .rightTrigger()
         .whileTrue(parallel(feeder.feed().repeatedly(), flywheel.spinUp()));
+    primaryController.b().whileTrue(feeder.unfeed());
   }
 }

@@ -30,7 +30,7 @@ public class Flywheel extends SubsystemBase {
     return motor.getEncoder().getVelocity();
   }
 
-  public static double targetRPM = 3470;
+  public static double targetRPM = 3425;
 
   public Command spinUp() {
     return run(() -> {
