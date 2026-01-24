@@ -195,15 +195,23 @@ public class Drivetrain extends SubsystemBase {
   public Command teleopDrive(
       DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier omegaInput) {
     return robotRelativeDrive(
-        () ->
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                xInput.getAsDouble() * maxSpeedMetersPerSec,
-                yInput.getAsDouble() * maxSpeedMetersPerSec,
-                omegaInput.getAsDouble() * maxAngularSpeedRadPerSec,
-                poseEstimator
-                    .getEstimatedPosition()
-                    .getRotation()
-                    .plus(onRed ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg)));
+        () -> {
+          var xControl = xInput.getAsDouble();
+          var yControl = yInput.getAsDouble();
+          var translationalMagnitude = Math.hypot(xControl, yControl);
+          xControl *= translationalMagnitude;
+          yControl *= translationalMagnitude;
+          var omegaControl = omegaInput.getAsDouble();
+          omegaControl *= omegaControl * Math.signum(omegaControl);
+          return ChassisSpeeds.fromFieldRelativeSpeeds(
+              xControl * maxSpeedMetersPerSec,
+              yControl * maxSpeedMetersPerSec,
+              omegaControl * maxAngularSpeedRadPerSec,
+              poseEstimator
+                  .getEstimatedPosition()
+                  .getRotation()
+                  .plus(onRed ? Rotation2d.kCW_90deg : Rotation2d.kCCW_90deg));
+        });
   }
 
   public Command fieldRelativeDrive(Supplier<ChassisSpeeds> speeds) {
