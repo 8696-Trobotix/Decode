@@ -59,12 +59,12 @@ public class Drivetrain extends SubsystemBase {
             VecBuilder.fill(.9, .9, .9));
     var cameraPose =
         new Transform3d(
+            -0.1,
             0.1,
-            0.12,
-            Units.inchesToMeters(15),
+            Units.inchesToMeters(17.5),
             new Rotation3d(
                 Units.degreesToRadians(0),
-                Units.degreesToRadians(23) - Units.degreesToRadians(90),
+                Units.degreesToRadians(-69.5),
                 Units.degreesToRadians(-90)));
     BaseOpMode.addResetHook(
         () -> {
@@ -75,12 +75,7 @@ public class Drivetrain extends SubsystemBase {
                   .setCameraPose(
                       CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
                       CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
-                  .setLensIntrinsics(
-                      // TODO: Measure actual values
-                      639.5 / Math.tan(Units.degreesToRadians(35)),
-                      639.5 / Math.tan(Units.degreesToRadians(35)),
-                      639.5,
-                      399.5)
+                  .setLensIntrinsics(911.3052435, 911.5676856, 670.6643003, 430.2322607)
                   .setDrawCubeProjection(true)
                   .setDrawAxes(true)
                   .setDrawTagOutline(true)
@@ -161,7 +156,7 @@ public class Drivetrain extends SubsystemBase {
         case 22 -> motif = Motif.PGP;
         case 23 -> motif = Motif.PPG;
         default -> {
-          if (tag.robotPose != null && Math.abs(tag.robotPose.getPosition().z) < .15) {
+          if (tag.robotPose != null) {
             var robotPose = CoordinateSystems.fieldPoseToWPILib(tag.robotPose);
             poseEstimator.addVisionMeasurement(
                 robotPose.toPose2d(),
