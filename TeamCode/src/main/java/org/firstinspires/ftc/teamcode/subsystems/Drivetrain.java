@@ -75,16 +75,20 @@ public class Drivetrain extends SubsystemBase {
                   .setCameraPose(
                       CoordinateSystems.WPILibToRobotCoordinates(cameraPose.getTranslation()),
                       CoordinateSystems.WPILibToSDKRotation(cameraPose.getRotation()))
-                  .setLensIntrinsics(911.3052435, 911.5676856, 670.6643003, 430.2322607)
+                  .setLensIntrinsics(
+                      911.3052435 * (480.0 / 800),
+                      911.5676856 * (480.0 / 800),
+                      670.6643003 * (480.0 / 800),
+                      430.2322607 * (480.0 / 800))
                   .setDrawCubeProjection(true)
                   .setDrawAxes(true)
                   .setDrawTagOutline(true)
                   .build();
-          tagProcessor.setDecimation(4);
+          tagProcessor.setDecimation(2);
           portal =
               new VisionPortal.Builder()
                   .setCamera(BaseOpMode.hardwareMap.get(WebcamName.class, "camera"))
-                  .setCameraResolution(new Size(1280, 800))
+                  .setCameraResolution(new Size(640, 480))
                   .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                   .enableLiveView(true)
                   .addProcessor(tagProcessor)
@@ -108,9 +112,9 @@ public class Drivetrain extends SubsystemBase {
     yPid = new PIDController(5, 0, 0.5);
     yawPid = new PIDController(4, 0, 0.1);
     distancePid = new PIDController(5, 0, 0.5);
-    xPid.setTolerance(.1, .5);
-    yPid.setTolerance(.1, .5);
-    distancePid.setTolerance(.1, .5);
+    xPid.setTolerance(.05, .15);
+    yPid.setTolerance(.05, .15);
+    distancePid.setTolerance(.05, .15);
     yawPid.setTolerance(.25, .75);
     yawPid.enableContinuousInput(-Math.PI, Math.PI);
   }
@@ -149,6 +153,7 @@ public class Drivetrain extends SubsystemBase {
     Telemetry.addDSData("Camera state", portal.getCameraState().name());
     poseEstimator.update();
     var tags = tagProcessor.getDetections();
+    Telemetry.addDSData("Apriltag detections", tags.size());
     for (int i = 0; i < tags.size(); i++) {
       var tag = tags.get(i);
       switch (tag.id) {

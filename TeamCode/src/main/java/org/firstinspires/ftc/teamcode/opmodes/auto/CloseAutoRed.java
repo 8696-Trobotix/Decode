@@ -26,7 +26,7 @@ public class CloseAutoRed extends BaseOpMode {
     enabled()
         .onTrue(
             sequence(
-                    waitUntil(drivetrain::atTargetDistance),
+                    waitUntil(drivetrain::atTargetDistance).deadlineFor(feeder.unfeed()),
                     feeder.feed(),
                     feeder.feed(),
                     feeder.feed())
