@@ -35,6 +35,6 @@ public class CloseAutoBlue extends BaseOpMode {
                 .deadlineFor(parallel(drivetrain.aimAtGoal(() -> 0), flywheel.spinUp()))
                 .andThen(
                     waitSeconds(1),
-                    drivetrain.driveToPose(new Pose2d(0.5, -.3, Rotation2d.kCW_90deg))));
+                    drivetrain.driveToPose(new Pose2d(0.4, -.55, Rotation2d.kCW_90deg))));
   }
 }
