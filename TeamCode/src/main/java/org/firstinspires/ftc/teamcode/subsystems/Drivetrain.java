@@ -150,6 +150,8 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    Telemetry.addDSData(
+        "Pose estimate yaw", poseEstimator.getEstimatedPosition().getRotation().getDegrees());
     Telemetry.addDSData("Camera state", portal.getCameraState().name());
     poseEstimator.update();
     var tags = tagProcessor.getDetections();
