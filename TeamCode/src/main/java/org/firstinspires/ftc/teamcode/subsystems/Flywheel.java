@@ -25,6 +25,7 @@ public class Flywheel extends SubsystemBase {
     shotTable.put(2.0, 3650.0);
     shotTable.put(1.75, 3300.0);
     shotTable.put(1.5, 3100.0);
+    shotTable.put(1.33, 2950.0);
     shotTable.put(Units.feetToMeters(0.5) * Math.sqrt(2), 2750.0);
   }
 

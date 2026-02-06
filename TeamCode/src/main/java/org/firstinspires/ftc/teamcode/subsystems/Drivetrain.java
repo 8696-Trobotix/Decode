@@ -266,14 +266,21 @@ public class Drivetrain extends SubsystemBase {
           var currentPose = poseEstimator.getEstimatedPosition();
           var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();
 
+          var feedback =
+              yawPid.calculate(
+                  currentPose.getRotation().getRadians(), currentPoseToGoalAngle.getRadians());
+          var feedforward =
+              (currentPoseToGoalAngle.getCos() * yControl
+                      + currentPoseToGoalAngle.getSin() * xControl)
+                  / distanceToGoalMeters;
+
+          Telemetry.addDashboardData("Drivetrain/AutoAim/Feedback", feedback);
+          Telemetry.addDashboardData("Drivetrain/AutoAim/Feedforward", feedforward);
+
           return ChassisSpeeds.fromFieldRelativeSpeeds(
               xControl,
               yControl,
-              yawPid.calculate(
-                      currentPose.getRotation().getRadians(), currentPoseToGoalAngle.getRadians())
-                  - (currentPoseToGoalAngle.getCos() * yControl
-                          + currentPoseToGoalAngle.getSin() * xControl)
-                      / distanceToGoalMeters,
+              feedback + feedforward,
               poseEstimator.getEstimatedPosition().getRotation());
         });
   }
