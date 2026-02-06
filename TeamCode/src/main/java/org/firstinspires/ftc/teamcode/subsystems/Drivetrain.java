@@ -111,10 +111,8 @@ public class Drivetrain extends SubsystemBase {
     xPid = new PIDController(5, 0, 0.5);
     yPid = new PIDController(5, 0, 0.5);
     yawPid = new PIDController(4, 0, 0.1);
-    distancePid = new PIDController(5, 0, 0.5);
     xPid.setTolerance(.05, .15);
     yPid.setTolerance(.05, .15);
-    distancePid.setTolerance(.05, .15);
     yawPid.setTolerance(.25, .75);
     yawPid.enableContinuousInput(-Math.PI, Math.PI);
   }
@@ -147,6 +145,11 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private Motif motif;
+
+  private final Translation2d redGoal =
+      new Translation2d(Units.feetToMeters(-6), Units.feetToMeters(5.75));
+  private final Translation2d blueGoal =
+      new Translation2d(Units.feetToMeters(-6), Units.feetToMeters(-5.75));
 
   @Override
   public void periodic() {
@@ -181,6 +184,13 @@ public class Drivetrain extends SubsystemBase {
     Telemetry.addDashboardData("Drivetrain/Pinpoint pose", poseEstimator.getEstimatedPosition());
     Telemetry.addDSData("Detected Motif", motif == null ? "None" : motif.name());
     Telemetry.addDashboardData("ZeroPose", Pose3d.kZero);
+
+    var goal = onRed ? redGoal : blueGoal;
+    Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", new Pose2d(goal, Rotation2d.kZero));
+    var currentPose = poseEstimator.getEstimatedPosition();
+    currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
+    distanceToGoalMeters = currentPoseToGoalDelta.getNorm();
+    Telemetry.addDashboardData("Drivetrain/AutoAim/distance", distanceToGoalMeters);
   }
 
   private boolean onRed = false;
@@ -243,42 +253,58 @@ public class Drivetrain extends SubsystemBase {
             });
   }
 
-  private final PIDController distancePid;
-  private final double targetDistanceMeters = 1.45;
+  private Translation2d currentPoseToGoalDelta;
+  private double distanceToGoalMeters;
 
-  public Command aimAtGoal(DoubleSupplier strafeInput) {
-    var redGoal = new Translation2d(Units.feetToMeters(-5.5), Units.feetToMeters(5.5));
-    var blueGoal = new Translation2d(Units.feetToMeters(-5.5), Units.feetToMeters(-5.5));
-    return fieldRelativeDrive(
+  private Command aimAtGoal(Supplier<Translation2d> translationalControlSupplier) {
+    return robotRelativeDrive(
         () -> {
-          var goal = onRed ? redGoal : blueGoal;
-          Telemetry.addDashboardData("Drivetrain/AutoAim/Goal", new Pose2d(goal, Rotation2d.kZero));
+          var translationalControl = translationalControlSupplier.get();
+          var xControl = translationalControl.getX();
+          var yControl = translationalControl.getY();
+
           var currentPose = poseEstimator.getEstimatedPosition();
-          var currentPoseToGoalDelta = goal.minus(currentPose.getTranslation());
           var currentPoseToGoalAngle = currentPoseToGoalDelta.getAngle();
-          var distanceControl =
-              -distancePid.calculate(currentPoseToGoalDelta.getNorm(), targetDistanceMeters);
-          Telemetry.addDashboardData(
-              "Drivetrain/AutoAim/distance", currentPoseToGoalDelta.getNorm());
-          Telemetry.addDashboardData("Drivetrain/AutoAim/distanceControl", distanceControl);
-          var strafeControl =
-              new Translation2d(
-                      0,
-                      strafeInput.getAsDouble()
-                          * maxSpeedMetersPerSec
-                          / (Math.PI * currentPoseToGoalDelta.getNorm()))
-                  .rotateBy(currentPoseToGoalAngle);
-          return new ChassisSpeeds(
-              distanceControl * currentPoseToGoalAngle.getCos() + strafeControl.getX(),
-              distanceControl * currentPoseToGoalAngle.getSin() + strafeControl.getY(),
+
+          return ChassisSpeeds.fromFieldRelativeSpeeds(
+              xControl,
+              yControl,
               yawPid.calculate(
                       currentPose.getRotation().getRadians(), currentPoseToGoalAngle.getRadians())
-                  - strafeControl.getNorm() / currentPoseToGoalDelta.getNorm());
+                  - (currentPoseToGoalAngle.getCos() * yControl
+                          + currentPoseToGoalAngle.getSin() * xControl)
+                      / distanceToGoalMeters,
+              poseEstimator.getEstimatedPosition().getRotation());
         });
   }
 
-  public boolean atTargetDistance() {
-    return distancePid.atSetpoint() && yawPid.atSetpoint();
+  public Command aimAtGoalTeleop(DoubleSupplier xInput, DoubleSupplier yInput) {
+    return aimAtGoal(
+        () -> {
+          var xControl = xInput.getAsDouble();
+          var yControl = yInput.getAsDouble();
+          var translationalMagnitude = Math.hypot(xControl, yControl);
+          xControl *= translationalMagnitude;
+          yControl *= translationalMagnitude;
+          if (onRed) {
+            xControl *= -1;
+            yControl *= -1;
+          }
+          return new Translation2d(xControl, yControl)
+              .rotateBy(onRed ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg);
+        });
+  }
+
+  public Command aimAtGoalAuto(Translation2d targetPose) {
+    return aimAtGoal(
+        () ->
+            new Translation2d(
+                xPid.calculate(poseEstimator.getEstimatedPosition().getX(), targetPose.getX()),
+                yPid.calculate(poseEstimator.getEstimatedPosition().getY(), targetPose.getY())));
+  }
+
+  public double getDistanceToGoalMeters() {
+    return distanceToGoalMeters;
   }
 
   public Command robotRelativeDrive(Supplier<ChassisSpeeds> speeds) {

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
+import org.firstinspires.ftc.lib.wpilib.math.geometry.Translation2d;
 import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 @Autonomous
@@ -28,11 +29,13 @@ public class CloseAutoBlue extends BaseOpMode {
     enabled()
         .onTrue(
             sequence(
-                    waitUntil(drivetrain::atTargetDistance).deadlineFor(feeder.unfeed()),
+                    waitUntil(flywheel::isAtTargetRPM).deadlineFor(feeder.unfeed()),
                     feeder.feed(),
                     feeder.feed(),
                     feeder.feed())
-                .deadlineFor(parallel(drivetrain.aimAtGoal(() -> 0), flywheel.spinUp()))
+                .deadlineFor(
+                    parallel(
+                        drivetrain.aimAtGoalAuto(new Translation2d(-.4, -.55)), flywheel.spinUp()))
                 .andThen(
                     waitSeconds(1),
                     drivetrain.driveToPose(new Pose2d(0.4, -.55, Rotation2d.kCW_90deg))));

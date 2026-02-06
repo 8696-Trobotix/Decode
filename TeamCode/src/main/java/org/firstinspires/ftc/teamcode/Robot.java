@@ -16,7 +16,7 @@ public class Robot {
 
   static {
     drivetrain = new Drivetrain();
-    flywheel = new Flywheel();
-    feeder = new Feeder(flywheel::getVelocityRPS);
+    flywheel = new Flywheel(drivetrain::getDistanceToGoalMeters);
+    feeder = new Feeder(flywheel::isAtTargetRPM);
   }
 }

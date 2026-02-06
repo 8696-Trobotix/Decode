@@ -21,7 +21,9 @@ public class DriveAndShoot extends BaseOpMode {
     primaryController.a().onTrue(drivetrain.resetGyro());
     primaryController
         .leftTrigger()
-        .whileTrue(drivetrain.aimAtGoal(() -> -primaryController.getLeftX()));
+        .whileTrue(
+            drivetrain.aimAtGoalTeleop(
+                () -> -primaryController.getLeftY(), () -> -primaryController.getLeftX()));
     primaryController
         .rightTrigger()
         .whileTrue(parallel(feeder.feed().repeatedly(), flywheel.spinUp()));
