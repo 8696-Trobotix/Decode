@@ -10,6 +10,8 @@ import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.CoordinateSystems;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.trobotix.estimator.PinpointPoseEstimator;
+import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
+import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Pinpoint;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
@@ -36,7 +38,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 public class Drivetrain extends SubsystemBase {
-  private final Motor frontLeft, frontRight, backLeft, backRight;
+  private final ModeledMotor frontLeft, frontRight, backLeft, backRight;
 
   private final PIDController xPid;
   private final PIDController yPid;
@@ -47,10 +49,34 @@ public class Drivetrain extends SubsystemBase {
   private VisionPortal portal;
 
   public Drivetrain() {
-    frontLeft = new Motor("Motor3");
-    frontRight = new Motor("Motor2");
-    backLeft = new Motor("Motor1");
-    backRight = new Motor("Motor0");
+    frontLeft =
+        new ModeledMotor(
+            new Motor("Motor3"),
+            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            DCMotor.GOBILDA_5203_435RPM(1),
+            9,
+            5);
+    frontRight =
+        new ModeledMotor(
+            new Motor("Motor2"),
+            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            DCMotor.GOBILDA_5203_435RPM(1),
+            9,
+            5);
+    backLeft =
+        new ModeledMotor(
+            new Motor("Motor1"),
+            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            DCMotor.GOBILDA_5203_435RPM(1),
+            9,
+            5);
+    backRight =
+        new ModeledMotor(
+            new Motor("Motor0"),
+            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            DCMotor.GOBILDA_5203_435RPM(1),
+            9,
+            5);
 
     poseEstimator =
         new PinpointPoseEstimator(
