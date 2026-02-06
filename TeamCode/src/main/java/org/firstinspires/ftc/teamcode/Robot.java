@@ -3,6 +3,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel;
@@ -13,6 +14,7 @@ public class Robot {
   public static final Drivetrain drivetrain;
   public static final Flywheel flywheel;
   public static final Feeder feeder;
+  public static final Climber climber = new Climber();
 
   static {
     drivetrain = new Drivetrain();
