@@ -51,7 +51,7 @@ public class Flywheel extends SubsystemBase {
   }
 
   public Command sort() {
-    return shoot(() -> 1950);
+    return shoot(() -> 1900);
   }
 
   private Command shoot(DoubleSupplier targetRPMSupplier) {

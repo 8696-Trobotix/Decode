@@ -164,13 +164,17 @@ public class Drivetrain extends SubsystemBase {
           .omegaRadiansPerSecond;
   private final double kV_voltsPerMetersPerSec = 12 / maxSpeedMetersPerSec;
 
-  private enum Motif {
+  public enum Motif {
     GPP,
     PGP,
     PPG
   }
 
   private Motif motif;
+
+  public Motif getMotif() {
+    return motif;
+  }
 
   private final Translation2d redGoal =
       new Translation2d(Units.feetToMeters(-6), Units.feetToMeters(5.75));
