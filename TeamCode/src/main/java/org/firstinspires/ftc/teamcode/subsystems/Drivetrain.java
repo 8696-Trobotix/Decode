@@ -52,31 +52,31 @@ public class Drivetrain extends SubsystemBase {
     frontLeft =
         new ModeledMotor(
             new Motor("Motor3"),
-            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            new Encoder("Motor3", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            9,
-            5);
+            8,
+            7);
     frontRight =
         new ModeledMotor(
             new Motor("Motor2"),
-            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            new Encoder("Motor2", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            9,
-            5);
+            8,
+            7);
     backLeft =
         new ModeledMotor(
             new Motor("Motor1"),
-            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            new Encoder("Motor1", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            9,
-            5);
+            8,
+            7);
     backRight =
         new ModeledMotor(
             new Motor("Motor0"),
-            new Encoder("Motor", Encoder.CountsPerRevolution.GOBILDA_435RPM),
+            new Encoder("Motor0", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
-            9,
-            5);
+            8,
+            7);
 
     poseEstimator =
         new PinpointPoseEstimator(

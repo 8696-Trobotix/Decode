@@ -33,7 +33,8 @@ public class CloseAutoRed extends BaseOpMode {
                     feeder.feed())
                 .deadlineFor(
                     parallel(
-                        drivetrain.aimAtGoalAuto(new Translation2d(-.4, .55)), flywheel.spinUp()))
+                        drivetrain.aimAtGoalAuto(new Translation2d(-.4, .55)),
+                        flywheel.shootAtGoal()))
                 .andThen(
                     waitSeconds(1),
                     drivetrain.driveToPose(new Pose2d(.4, .55, Rotation2d.kCW_90deg))));

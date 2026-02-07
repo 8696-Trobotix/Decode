@@ -46,9 +46,17 @@ public class Flywheel extends SubsystemBase {
 
   private double targetRPM;
 
-  public Command spinUp() {
+  public Command shootAtGoal() {
+    return shoot(() -> shotTable.get(targetDistanceSupplier.getAsDouble()));
+  }
+
+  public Command sort() {
+    return shoot(() -> 1950);
+  }
+
+  private Command shoot(DoubleSupplier targetRPMSupplier) {
     return run(() -> {
-          targetRPM = shotTable.get(targetDistanceSupplier.getAsDouble());
+          targetRPM = targetRPMSupplier.getAsDouble();
           var feedforward = targetRPM * (10.0 / 4000);
           var feedback = (.7) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
           Telemetry.addDSData("Flywheel/Commanded Voltage", feedforward + feedback);
