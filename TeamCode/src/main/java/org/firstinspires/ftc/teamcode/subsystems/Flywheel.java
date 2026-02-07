@@ -31,8 +31,8 @@ public class Flywheel extends SubsystemBase {
 
   private final ModeledMotor motor =
       new ModeledMotor(
-          new Motor("Motor5"),
-          new Encoder("Motor5", Encoder.CountsPerRevolution.GOBILDA_6000RPM),
+          new Motor("Motor5").withInvert(true),
+          new Encoder("Motor5", Encoder.CountsPerRevolution.GOBILDA_6000RPM).withInvert(true),
           DCMotor.GOBILDA_5203_6000RPM(1),
           8,
           5);
