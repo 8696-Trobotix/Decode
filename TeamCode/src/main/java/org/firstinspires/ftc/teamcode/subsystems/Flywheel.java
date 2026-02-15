@@ -4,15 +4,18 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import java.util.function.DoubleSupplier;
+import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.trobotix.Telemetry;
 import org.firstinspires.ftc.lib.trobotix.hardware.Encoder;
 import org.firstinspires.ftc.lib.trobotix.hardware.ModeledMotor;
 import org.firstinspires.ftc.lib.trobotix.hardware.Motor;
 import org.firstinspires.ftc.lib.wpilib.command.Command;
 import org.firstinspires.ftc.lib.wpilib.command.SubsystemBase;
+import org.firstinspires.ftc.lib.wpilib.math.controller.PIDController;
+import org.firstinspires.ftc.lib.wpilib.math.filter.Debouncer;
+import org.firstinspires.ftc.lib.wpilib.math.filter.LinearFilter;
 import org.firstinspires.ftc.lib.wpilib.math.interpolation.InterpolatingDoubleTreeMap;
 import org.firstinspires.ftc.lib.wpilib.math.system.plant.DCMotor;
-import org.firstinspires.ftc.lib.wpilib.math.util.Units;
 
 public class Flywheel extends SubsystemBase {
   private final DoubleSupplier targetDistanceSupplier;
@@ -22,11 +25,15 @@ public class Flywheel extends SubsystemBase {
   public Flywheel(DoubleSupplier targetDistanceSupplier) {
     this.targetDistanceSupplier = targetDistanceSupplier;
 
-    shotTable.put(2.0, 3650.0);
-    shotTable.put(1.75, 3300.0);
-    shotTable.put(1.5, 3100.0);
-    shotTable.put(1.33, 2950.0);
-    shotTable.put(Units.feetToMeters(0.5) * Math.sqrt(2), 2750.0);
+    shotTable.put(1.0, 3000.0);
+    shotTable.put(1.25, 3100.0);
+    shotTable.put(1.5, 3500.0);
+    shotTable.put(1.75, 3750.0);
+    shotTable.put(2.0, 3850.0);
+    shotTable.put(2.25, 4020.0);
+    shotTable.put(2.5, 4200.0);
+
+    BaseOpMode.addResetHook(rpmFilter::reset);
   }
 
   private final ModeledMotor motor =
@@ -37,11 +44,15 @@ public class Flywheel extends SubsystemBase {
           8,
           5);
 
+  private double currentRPM;
+
   @Override
   public void periodic() {
+    currentRPM = rpmFilter.calculate(motor.getEncoder().getVelocity() * 60);
     Telemetry.addDashboardData("Flywheel/Position Rotations", motor.getEncoder().getPosition());
-    Telemetry.addDashboardData("Flywheel/Velocity RPM", motor.getEncoder().getVelocity() * 60);
+    Telemetry.addDashboardData("Flywheel/Velocity RPM", currentRPM);
     Telemetry.addDashboardData("Flywheel/Target RPM", targetRPM);
+    Telemetry.addDashboardData("Flywheel/At target RPM", isAtTargetRPM());
   }
 
   private double targetRPM;
@@ -51,21 +62,27 @@ public class Flywheel extends SubsystemBase {
   }
 
   public Command sort() {
-    return shoot(() -> 1900);
+    return shoot(() -> 2210);
   }
+
+  private final LinearFilter rpmFilter = LinearFilter.singlePoleIIR(.1, .015);
+
+  private final PIDController flywheelPID = new PIDController(0.005, 0, 0.00);
 
   private Command shoot(DoubleSupplier targetRPMSupplier) {
     return run(() -> {
           targetRPM = targetRPMSupplier.getAsDouble();
-          var feedforward = targetRPM * (10.0 / 4000);
-          var feedback = (.7) * (targetRPM / 60.0 - motor.getEncoder().getVelocity());
+          var feedforward = targetRPM * (5.78 / 2250);
+          var feedback = flywheelPID.calculate(currentRPM, targetRPM);
           Telemetry.addDSData("Flywheel/Commanded Voltage", feedforward + feedback);
           motor.setVoltage(feedforward + feedback);
         })
         .finallyDo(() -> motor.setVoltage(0));
   }
 
+  private final Debouncer debouncer = new Debouncer(0.25);
+
   public boolean isAtTargetRPM() {
-    return Math.abs(motor.getEncoder().getVelocity() * 60 - targetRPM) < 50;
+    return debouncer.calculate(Math.abs(targetRPM - currentRPM) < 150);
   }
 }

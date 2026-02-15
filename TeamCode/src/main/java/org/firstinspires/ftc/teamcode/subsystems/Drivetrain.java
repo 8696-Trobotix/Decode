@@ -55,28 +55,28 @@ public class Drivetrain extends SubsystemBase {
             new Encoder("Motor3", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
             8,
-            7);
+            6);
     frontRight =
         new ModeledMotor(
             new Motor("Motor2"),
             new Encoder("Motor2", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
             8,
-            7);
+            6);
     backLeft =
         new ModeledMotor(
             new Motor("Motor1"),
             new Encoder("Motor1", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
             8,
-            7);
+            6);
     backRight =
         new ModeledMotor(
             new Motor("Motor0"),
             new Encoder("Motor0", Encoder.CountsPerRevolution.GOBILDA_435RPM),
             DCMotor.GOBILDA_5203_435RPM(1),
             8,
-            7);
+            6);
 
     poseEstimator =
         new PinpointPoseEstimator(
@@ -85,13 +85,13 @@ public class Drivetrain extends SubsystemBase {
             VecBuilder.fill(.9, .9, .9));
     var cameraPose =
         new Transform3d(
-            -0.1,
+            0.35,
             0.1,
             Units.inchesToMeters(17.5),
             new Rotation3d(
-                Units.degreesToRadians(0),
-                Units.degreesToRadians(-69.5),
-                Units.degreesToRadians(-90)));
+                Units.degreesToRadians(3),
+                Units.degreesToRadians(-70.5),
+                Units.degreesToRadians(-105)));
     BaseOpMode.addResetHook(
         () -> {
           tagProcessor =
@@ -323,10 +323,6 @@ public class Drivetrain extends SubsystemBase {
           var translationalMagnitude = Math.hypot(xControl, yControl);
           xControl *= translationalMagnitude;
           yControl *= translationalMagnitude;
-          if (onRed) {
-            xControl *= -1;
-            yControl *= -1;
-          }
           return new Translation2d(xControl, yControl)
               .rotateBy(onRed ? Rotation2d.kCCW_90deg : Rotation2d.kCW_90deg);
         });
@@ -344,16 +340,24 @@ public class Drivetrain extends SubsystemBase {
     return distanceToGoalMeters;
   }
 
+  private double addKs(double input, double kS) {
+    return input + kS * Math.signum(input);
+  }
+
   public Command robotRelativeDrive(Supplier<ChassisSpeeds> speeds) {
     return run(
         () -> {
           var wheelSpeeds = kinematics.toWheelSpeeds(speeds.get());
           wheelSpeeds.desaturate(maxSpeedMetersPerSec);
 
-          frontLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond);
-          frontRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond);
-          backLeft.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond);
-          backRight.setVoltage(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond);
+          frontLeft.setVoltage(
+              addKs(kV_voltsPerMetersPerSec * wheelSpeeds.frontLeftMetersPerSecond, 0.01));
+          frontRight.setVoltage(
+              addKs(kV_voltsPerMetersPerSec * wheelSpeeds.frontRightMetersPerSecond, 0.01));
+          backLeft.setVoltage(
+              addKs(kV_voltsPerMetersPerSec * wheelSpeeds.rearLeftMetersPerSecond, 0.01));
+          backRight.setVoltage(
+              addKs(kV_voltsPerMetersPerSec * wheelSpeeds.rearRightMetersPerSecond, 0.01));
         });
   }
 

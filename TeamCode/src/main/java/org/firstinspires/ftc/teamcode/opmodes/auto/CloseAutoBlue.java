@@ -3,19 +3,12 @@
 
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import static org.firstinspires.ftc.lib.wpilib.command.Commands.none;
-import static org.firstinspires.ftc.lib.wpilib.command.Commands.parallel;
-import static org.firstinspires.ftc.lib.wpilib.command.Commands.select;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.sequence;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.waitSeconds;
 import static org.firstinspires.ftc.lib.wpilib.command.Commands.waitUntil;
 import static org.firstinspires.ftc.teamcode.Robot.*;
-import static org.firstinspires.ftc.teamcode.subsystems.Drivetrain.Motif.GPP;
-import static org.firstinspires.ftc.teamcode.subsystems.Drivetrain.Motif.PGP;
-import static org.firstinspires.ftc.teamcode.subsystems.Drivetrain.Motif.PPG;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import java.util.Map;
 import org.firstinspires.ftc.lib.trobotix.BaseOpMode;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Pose2d;
 import org.firstinspires.ftc.lib.wpilib.math.geometry.Rotation2d;
@@ -34,37 +27,50 @@ public class CloseAutoBlue extends BaseOpMode {
     drivetrain.setOnBlue();
     enabled()
         .onTrue(
-            parallel(
-                    drivetrain.driveToPose(new Pose2d(-.4, -.55, Rotation2d.fromDegrees(175))),
-                    waitUntil(() -> drivetrain.getMotif() != null))
-                .andThen(
-                    select(
-                        Map.of(
-                            PPG,
-                            none(),
-                            PGP,
-                            flywheel
-                                .sort()
-                                .withDeadline(
-                                    waitUntil(flywheel::isAtTargetRPM).andThen(feeder.feed())),
-                            GPP,
-                            flywheel
-                                .sort()
-                                .withDeadline(
-                                    waitUntil(flywheel::isAtTargetRPM)
-                                        .andThen(feeder.feed(), feeder.feed()))),
-                        drivetrain::getMotif),
-                    sequence(
-                            feeder.unfeed().until(flywheel::isAtTargetRPM),
-                            feeder.feed(),
-                            feeder.feed(),
-                            feeder.feed())
-                        .deadlineFor(
-                            parallel(
-                                drivetrain.aimAtGoalAuto(new Translation2d(-.4, -.55)),
-                                flywheel.shootAtGoal()))
-                        .andThen(
-                            waitSeconds(1),
-                            drivetrain.driveToPose(new Pose2d(0.4, -.55, Rotation2d.kCW_90deg)))));
+            sequence(
+                // drivetrain
+                //     .driveToPose(new Pose2d(-1.2, -.45, Rotation2d.fromDegrees(-228)))
+                //     .until(() -> drivetrain.getMotif() != null)
+                //     .withTimeout(10)
+                //     .deadlineFor(feeder.unfeed()),
+                // either(
+                //     none(),
+                //     select(
+                //         Map.of(
+                //             PPG,
+                //             none(),
+                //             PGP,
+                //             flywheel
+                //                 .sort()
+                //                 .withDeadline(
+                //                     sequence(
+                //                         waitUntil(flywheel::isAtTargetRPM)
+                //                             .deadlineFor(feeder.unfeed()),
+                //                         feeder.feed()))
+                //                 .andThen(waitSeconds(1)),
+                //             GPP,
+                //             flywheel
+                //                 .sort()
+                //                 .withDeadline(
+                //                     sequence(
+                //                         waitUntil(flywheel::isAtTargetRPM)
+                //                             .deadlineFor(feeder.unfeed()),
+                //                         feeder.feed(),
+                //                         feeder.feed()))
+                //                 .andThen(waitSeconds(1))),
+                //         drivetrain::getMotif),
+                //     () -> drivetrain.getMotif() == null),
+                drivetrain.driveToPose(new Pose2d(-1.2, -.45, Rotation2d.fromDegrees(-113))),
+                waitSeconds(2),
+                sequence(
+                        waitUntil(flywheel::isAtTargetRPM).deadlineFor(feeder.unfeed()),
+                        feeder.feed(),
+                        waitSeconds(0.5),
+                        feeder.feed(),
+                        waitSeconds(0.5),
+                        feeder.feed())
+                    .deadlineFor(
+                        drivetrain.aimAtGoalAuto(new Translation2d(-1.2, -.45)),
+                        flywheel.shootAtGoal())));
   }
 }
